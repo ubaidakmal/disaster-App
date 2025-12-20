@@ -1,0 +1,34 @@
+{
+  "_comment": "This is a placeholder file. Replace this with your actual google-services.json from Firebase Console.",
+  "_instructions": "1. Go to Firebase Console -> Project Settings -> Your Android App",
+  "_instructions2": "2. Download google-services.json",
+  "_instructions3": "3. Replace this file with the downloaded file (rename to google-services.json)",
+  "project_info": {
+    "project_number": "YOUR_PROJECT_NUMBER",
+    "project_id": "YOUR_PROJECT_ID",
+    "storage_bucket": "YOUR_STORAGE_BUCKET"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "YOUR_APP_ID",
+        "android_client_info": {
+          "package_name": "com.bc230420212.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "YOUR_API_KEY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
+
