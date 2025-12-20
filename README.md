@@ -29,7 +29,7 @@ The system also tracks user roles:
 
 ### 1. Login Screen (`LoginScreen.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/androidbasedcrowdsourceddisasteralertsafetyapp/ui/screens/auth/LoginScreen.kt`
+**Location:** `app/src/main/java/com/bc230420212/app/ui/screens/auth/LoginScreen.kt`
 
 **Screen Title:** Login Screen
 
@@ -76,7 +76,7 @@ If valid → Navigate to Home → If invalid → Show error
 
 ### 2. Register Screen (`RegisterScreen.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/androidbasedcrowdsourceddisasteralertsafetyapp/ui/screens/auth/RegisterScreen.kt`
+**Location:** `app/src/main/java/com/bc230420212/app/ui/screens/auth/RegisterScreen.kt`
 
 **Screen Title:** Registration Screen
 
@@ -129,42 +129,53 @@ Create Firestore user document → Navigate to Home
 
 ---
 
-### 3. Home Screen (`HomeScreen.kt`)
+### 3. Home Screen (Dashboard) (`HomeScreen.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/androidbasedcrowdsourceddisasteralertsafetyapp/ui/screens/home/HomeScreen.kt`
+**Location:** `app/src/main/java/com/bc230420212/app/ui/screens/home/HomeScreen.kt`
 
-**Screen Title:** Home Screen
+**Screen Title:** Home Screen / Dashboard
 
 **What This Screen Does:**
-This is the main screen users see after logging in. Currently, it's a placeholder that shows:
-- Welcome message
-- User's role (USER or ADMIN)
-- Sign out button
+This is the main navigation screen users see after logging in. It serves as the dashboard with navigation cards/buttons to access all major features of the app.
 
 **How It Works:**
 1. **Top Bar (AppBar)**:
    - Shows app name "Disaster Alert"
    - Blue colored header
+   - Displays user's role (USER/ADMIN) on the right
 
 2. **Welcome Section**:
    - Displays "Welcome!" message
-   - Shows user's role (USER/ADMIN)
+   - Shows subtitle "Stay safe, stay informed"
 
-3. **Sign Out Button**:
+3. **Dashboard Cards** (Main Navigation):
+   - **Report Disaster Card**: Navigate to report a new disaster
+   - **View Reports Card**: Navigate to see list of all reports
+   - **Map View Card**: Navigate to see reports on interactive map
+   - **SOS Emergency Card**: Navigate to send emergency SOS alert
+   - **Profile & Settings Card**: Navigate to user profile and settings
+
+4. **Sign Out Button**:
    - Logs out the current user
    - Returns to Login Screen
 
-**Note:** This screen will be expanded later to show:
-- List of disaster reports
-- Map view of disasters
-- Quick report button
-- SOS feature
+**Features:**
+- Clean card-based navigation design
+- Each card has an icon and title
+- Clicking a card navigates to the corresponding screen
+- Scrollable layout for better UX
+- Shows user role in the top bar
 
 **Code Flow:**
 ```
-User logged in → Check authentication state → Display user info → 
-User clicks Sign Out → Logout → Navigate to Login
+User logged in → Display dashboard → User clicks a card → 
+Navigate to corresponding screen → User can navigate back
 ```
+
+**Components Used:**
+- `DashboardCard` - Reusable card component for navigation
+- `AppButton` - Reusable button for sign out
+- Material3 Icons - For visual representation
 
 ---
 
@@ -172,7 +183,7 @@ User clicks Sign Out → Logout → Navigate to Login
 
 ### 1. AppButton Component (`AppButton.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/androidbasedcrowdsourceddisasteralertsafetyapp/ui/components/AppButton.kt`
+**Location:** `app/src/main/java/com/bc230420212/app/ui/components/AppButton.kt`
 
 **What It Does:**
 A reusable button component that can be used throughout the app. This ensures all buttons look consistent.
@@ -207,9 +218,130 @@ AppButton(
 
 ---
 
-### 2. AppTextField Component (`AppTextField.kt`)
+### 2. AppDropdown Component (`AppDropdown.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/androidbasedcrowdsourceddisasteralertsafetyapp/ui/components/AppTextField.kt`
+**Location:** `app/src/main/java/com/bc230420212/app/ui/components/AppDropdown.kt`
+
+**What It Does:**
+A reusable dropdown menu component for selecting options. Used for disaster type selection in the Report Disaster screen.
+
+**Features:**
+- **Label**: Shows what the dropdown is for
+- **Options**: List of options to choose from
+- **Selected Option**: Shows currently selected value
+- **Read-only**: User can only select from options, not type
+
+**How to Use:**
+```kotlin
+AppDropdown(
+    label = "Select Disaster Type",
+    options = listOf("Flood", "Fire", "Earthquake"),
+    selectedOption = selectedType,
+    onOptionSelected = { newType -> /* update */ }
+)
+```
+
+**Why We Created This:**
+- Consistent dropdown design
+- Easy to use throughout the app
+- Prevents invalid input
+
+---
+
+### 3. AppTextArea Component (`AppTextArea.kt`)
+
+**Location:** `app/src/main/java/com/bc230420212/app/ui/components/AppTextArea.kt`
+
+**What It Does:**
+A reusable multi-line text input component for longer text like descriptions.
+
+**Features:**
+- **Multi-line**: Supports multiple lines of text
+- **Height**: Fixed height (120dp) for better UX
+- **Error Handling**: Can show error messages
+- **Validation**: Built-in validation support
+
+**How to Use:**
+```kotlin
+AppTextArea(
+    value = description,
+    onValueChange = { description = it },
+    label = "Description",
+    isError = false,
+    errorMessage = "Required"
+)
+```
+
+**Why We Created This:**
+- Consistent text areas across the app
+- Better for longer text input
+- Easy to customize
+
+---
+
+### 4. ReportItem Component (`ReportItem.kt`)
+
+**Location:** `app/src/main/java/com/bc230420212/app/ui/components/ReportItem.kt`
+
+**What It Does:**
+A reusable card component that displays a single disaster report in a list. Shows all key information in a compact format.
+
+**Features:**
+- **Disaster Type**: Color-coded badge
+- **Status**: Status badge (ACTIVE/RESOLVED/FALSE_ALARM)
+- **Description**: Shortened to 2 lines with ellipsis
+- **Time**: Formatted timestamp
+- **Verification**: Confirmations and dismissals counts
+- **Clickable**: Entire card is clickable
+
+**How to Use:**
+```kotlin
+ReportItem(
+    report = disasterReport,
+    onClick = { /* navigate to details */ }
+)
+```
+
+**Why We Created This:**
+- Consistent list item design
+- Shows all important info at a glance
+- Easy to tap and navigate
+
+---
+
+### 5. DashboardCard Component (`DashboardCard.kt`)
+
+**Location:** `app/src/main/java/com/bc230420212/app/ui/components/DashboardCard.kt`
+
+**What It Does:**
+A reusable card component used in the Home Screen Dashboard for navigation. Each card represents a feature/function in the app.
+
+**Features:**
+- **Title**: Shows the feature name (e.g., "Report Disaster")
+- **Icon**: Optional icon for visual representation
+- **Clickable**: Entire card is clickable
+- **Consistent Design**: All cards look the same
+
+**How to Use:**
+```kotlin
+DashboardCard(
+    title = "Report Disaster",
+    icon = Icons.Default.Warning,
+    onClick = { /* navigate */ }
+)
+```
+
+**Why We Created This:**
+- Consistent navigation cards across the dashboard
+- Easy to add new features
+- Clean and modern design
+- Reusable component
+
+---
+
+### 5. AppTextField Component (`AppTextField.kt`)
+
+**Location:** `app/src/main/java/com/bc230420212/app/ui/components/AppTextField.kt`
 
 **What It Does:**
 A reusable text input field component for forms throughout the app.
@@ -239,9 +371,9 @@ AppTextField(
 
 ---
 
-### 3. AppColors (`AppColors.kt`)
+### 6. AppColors (`AppColors.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/androidbasedcrowdsourceddisasteralertsafetyapp/ui/theme/AppColors.kt`
+**Location:** `app/src/main/java/com/bc230420212/app/ui/theme/AppColors.kt`
 
 **What It Does:**
 A file that contains all color definitions used in the app. This is like a color palette.
@@ -269,9 +401,57 @@ Button(colors = ButtonDefaults.buttonColors(containerColor = PrimaryColor))
 
 ## Data Models
 
+### DisasterType Enum (`DisasterType.kt`)
+
+**Location:** `app/src/main/java/com/bc230420212/app/data/model/DisasterType.kt`
+
+**What It Does:**
+Defines all the types of disasters that can be reported in the app.
+
+**Disaster Types:**
+- FLOOD - Flood disasters
+- FIRE - Fire emergencies
+- EARTHQUAKE - Earthquake events
+- ACCIDENT - Accidents
+- STORM - Storms
+- LANDSLIDE - Landslides
+- OTHER - Other types of disasters
+
+Each type has a `displayName` that is shown in the dropdown.
+
+---
+
+### DisasterReport Model (`DisasterReport.kt`)
+
+**Location:** `app/src/main/java/com/bc230420212/app/data/model/DisasterReport.kt`
+
+**What It Does:**
+Defines the structure of a disaster report in the app.
+
+**Report Properties:**
+- `id`: Unique report ID from Firestore
+- `userId`: ID of user who created the report
+- `disasterType`: Type of disaster (from DisasterType enum)
+- `description`: Description of the disaster
+- `latitude`: GPS latitude coordinate
+- `longitude`: GPS longitude coordinate
+- `address`: Human-readable address (optional)
+- `mediaUrls`: List of photo/video URLs from Firebase Storage
+- `timestamp`: When the report was created
+- `status`: Report status (ACTIVE, RESOLVED, FALSE_ALARM)
+- `confirmations`: Number of users who confirmed this report
+- `dismissals`: Number of users who dismissed this report
+
+**ReportStatus Enum:**
+- `ACTIVE`: Report is active and needs attention
+- `RESOLVED`: Report has been resolved
+- `FALSE_ALARM`: Report was a false alarm
+
+---
+
 ### User Model (`User.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/androidbasedcrowdsourceddisasteralertsafetyapp/data/model/User.kt`
+**Location:** `app/src/main/java/com/bc230420212/app/data/model/User.kt`
 
 **What It Does:**
 Defines the structure of user data in the app.
@@ -291,9 +471,73 @@ Defines the structure of user data in the app.
 
 ## ViewModels
 
+### ReportsViewModel (`ReportsViewModel.kt`)
+
+**Location:** `app/src/main/java/com/bc230420212/app/ui/viewmodel/ReportsViewModel.kt`
+
+**What It Does:**
+Manages the state and logic for the View Reports and Report Details screens.
+
+**State Management:**
+- `isLoading`: Shows if reports are being loaded
+- `errorMessage`: Stores any error messages
+- `reports`: List of all disaster reports
+- `selectedReport`: Currently selected report for details view
+
+**Functions:**
+1. **loadReports()**: Fetches all reports from Firestore
+2. **loadReportById()**: Fetches a specific report by ID
+3. **confirmReport()**: Increments confirmations count in Firestore
+4. **dismissReport()**: Increments dismissals count in Firestore
+5. **clearError()**: Removes error messages
+6. **clearSelectedReport()**: Clears selected report
+
+**How It Works:**
+- Automatically loads reports when ViewModel is created
+- Updates Firestore when user confirms/dismisses
+- Refreshes data after updates
+- Screens observe state changes and update UI
+
+---
+
+### ReportViewModel (`ReportViewModel.kt`)
+
+**Location:** `app/src/main/java/com/bc230420212/app/ui/viewmodel/ReportViewModel.kt`
+
+**What It Does:**
+Manages the state and logic for the Report Disaster screen.
+
+**State Management:**
+- `isLoading`: Shows if report is being submitted
+- `errorMessage`: Stores any error messages
+- `isSuccess`: True if report was submitted successfully
+- `selectedDisasterType`: Currently selected disaster type
+- `description`: Description text
+- `latitude`, `longitude`: GPS coordinates
+- `address`: Human-readable address
+- `mediaUrls`: List of media file URLs
+
+**Functions:**
+1. **updateDisasterType()**: Updates selected disaster type
+2. **updateDescription()**: Updates description text
+3. **updateLocation()**: Updates GPS location and address
+4. **submitReport()**: Validates and submits report to Firestore
+5. **clearError()**: Removes error messages
+6. **clearSuccess()**: Clears success state
+7. **resetForm()**: Resets form to initial state
+
+**How It Works:**
+- Screens call ViewModel functions to update state
+- ViewModel validates input
+- ViewModel communicates with ReportRepository
+- ViewModel updates state based on results
+- Screens observe state changes and update UI
+
+---
+
 ### AuthViewModel (`AuthViewModel.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/androidbasedcrowdsourceddisasteralertsafetyapp/ui/viewmodel/AuthViewModel.kt`
+**Location:** `app/src/main/java/com/bc230420212/app/ui/viewmodel/AuthViewModel.kt`
 
 **What It Does:**
 Manages the authentication state and handles all authentication operations.
@@ -323,7 +567,7 @@ Manages the authentication state and handles all authentication operations.
 
 ### AuthRepository (`AuthRepository.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/androidbasedcrowdsourceddisasteralertsafetyapp/data/repository/AuthRepository.kt`
+**Location:** `app/src/main/java/com/bc230420212/app/data/repository/AuthRepository.kt`
 
 **What It Does:**
 Handles all communication with Firebase Authentication and Firestore database.
@@ -342,11 +586,72 @@ Handles all communication with Firebase Authentication and Firestore database.
 
 ---
 
+### ReportRepository (`ReportRepository.kt`)
+
+**Location:** `app/src/main/java/com/bc230420212/app/data/repository/ReportRepository.kt`
+
+**What It Does:**
+Handles all Firestore operations related to disaster reports, including one-time voting system.
+
+**Functions:**
+1. **saveReport()**: Saves a new disaster report to Firestore
+   - Converts report to HashMap format
+   - Adds to "reports" collection
+   - Returns report ID on success
+
+2. **getAllReports()**: Fetches all reports from Firestore
+   - Queries "reports" collection
+   - Orders by timestamp (newest first)
+   - Converts Firestore documents to DisasterReport objects
+
+3. **getReportById()**: Fetches a single report by ID
+   - Gets report document from Firestore
+   - Returns DisasterReport object
+
+4. **hasUserConfirmed()**: Checks if current user has already confirmed a report
+   - Checks user ID in confirmedBy array
+   - Returns true if user has voted
+   - Used to prevent duplicate voting
+
+5. **hasUserDismissed()**: Checks if current user has already dismissed a report
+   - Checks user ID in dismissedBy array
+   - Returns true if user has voted
+   - Used to prevent duplicate voting
+
+6. **confirmReport()**: Confirms a report (one-time per user)
+   - Checks if user has already voted (confirmed or dismissed)
+   - Adds user ID to confirmedBy array in Firestore
+   - Updates confirmations count based on array size
+   - Prevents duplicate voting
+   - Returns error if user already voted
+
+7. **dismissReport()**: Dismisses a report (one-time per user)
+   - Checks if user has already voted (confirmed or dismissed)
+   - Adds user ID to dismissedBy array in Firestore
+   - Updates dismissals count based on array size
+   - Prevents duplicate voting
+   - Returns error if user already voted
+
+**One-Time Voting System:**
+- Each user can only vote once per report (either confirm or dismiss)
+- User IDs are stored in `confirmedBy` and `dismissedBy` arrays in Firestore
+- Counts are automatically calculated from array sizes
+- Prevents vote manipulation and ensures fair verification
+- UI buttons are disabled after user votes
+- Shows status message if user has already voted
+
+**Why We Use Repository:**
+- Separates Firestore code from UI code
+- Makes testing easier
+- Can change Firestore implementation without changing screens
+
+---
+
 ## Navigation
 
 ### NavGraph (`NavGraph.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/androidbasedcrowdsourceddisasteralertsafetyapp/ui/navigation/NavGraph.kt`
+**Location:** `app/src/main/java/com/bc230420212/app/ui/navigation/NavGraph.kt`
 
 **What It Does:**
 Manages navigation between different screens in the app.
@@ -377,7 +682,7 @@ navController.navigate(Screen.Home.route) {
 
 ### MainActivity (`MainActivity.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/androidbasedcrowdsourceddisasteralertsafetyapp/MainActivity.kt`
+**Location:** `app/src/main/java/com/bc230420212/app/MainActivity.kt`
 
 **What It Does:**
 The main entry point of the app. It sets up the UI and handles Google Sign-In.
@@ -400,7 +705,7 @@ If logged in → Show Home → If not → Show Login
 ## Project Structure
 
 ```
-app/src/main/java/com/bc230420212/androidbasedcrowdsourceddisasteralertsafetyapp/
+app/src/main/java/com/bc230420212/app/
 ├── MainActivity.kt                    # App entry point
 ├── data/
 │   ├── model/
@@ -451,15 +756,312 @@ See `FIREBASE_SETUP.md` for detailed Firebase configuration instructions.
 
 ---
 
+## Additional Screens (Placeholders Created)
+
+### 4. Report Disaster Screen (`ReportDisasterScreen.kt`)
+
+**Location:** `app/src/main/java/com/bc230420212/app/ui/screens/report/ReportDisasterScreen.kt`
+
+**Screen Title:** Report Disaster
+
+**What This Screen Does:**
+This screen allows users to report a disaster with all necessary information. Users can select the disaster type, describe the situation, capture their location, and optionally upload media.
+
+**How It Works:**
+1. **Disaster Type Dropdown**:
+   - User selects from: Flood, Fire, Earthquake, Accident, Storm, Landslide, or Other
+   - Uses reusable `AppDropdown` component
+   - Required field
+
+2. **Description Text Box**:
+   - Multi-line text area for describing the disaster
+   - Uses reusable `AppTextArea` component
+   - Required field (minimum validation)
+   - Shows error if empty
+
+3. **Location Section (GPS)**:
+   - "Capture Location" button requests location permissions
+   - Uses Google Play Services Location API
+   - Captures GPS coordinates (latitude, longitude)
+   - Attempts to get human-readable address using Geocoder
+   - Shows captured location with coordinates/address
+   - Required field - submit button disabled until location is captured
+
+4. **Photo/Video Upload (Optional)**:
+   - Placeholder section for media upload
+   - Will be implemented to upload to Firebase Storage
+   - Currently shows "Coming Soon" message
+   - Button is disabled until implementation
+
+5. **Submit Button**:
+   - Validates all required fields
+   - Saves report to Firestore database
+   - Shows loading indicator while submitting
+   - Shows success dialog on completion
+   - Navigates back to home after success
+
+**Key Features:**
+- Form validation (description and location required)
+- Permission handling for location and camera
+- GPS location capture with address lookup
+- Firestore integration for saving reports
+- Success/error feedback
+- Loading states
+
+**Code Flow:**
+```
+User fills form → Click "Capture Location" → Request permissions → 
+Get GPS coordinates → Enter description → Click "Submit Report" → 
+Validate → Save to Firestore → Show success → Navigate back
+```
+
+**Data Saved to Firestore:**
+- User ID (from Firebase Auth)
+- Disaster type
+- Description
+- GPS coordinates (latitude, longitude)
+- Address (if available)
+- Timestamp
+- Status (ACTIVE)
+- Media URLs (when implemented)
+
+**Status:** ✅ Fully Implemented with Firestore Integration
+
+---
+
+### 5. View Reports Screen (`ViewReportsScreen.kt`)
+
+**Location:** `app/src/main/java/com/bc230420212/app/ui/screens/reports/ViewReportsScreen.kt`
+
+**Screen Title:** View Reports
+
+**What This Screen Does:**
+This screen displays a list of all disaster reports (both active and past) fetched from Firestore. Users can view reports, see verification info, and tap to see full details.
+
+**How It Works:**
+1. **Tab Navigation**:
+   - **Active Tab**: Shows only active reports (status = ACTIVE)
+   - **Past Tab**: Shows resolved and false alarm reports
+
+2. **Report List Items**:
+   Each item displays:
+   - **Disaster Type**: Color-coded badge (Flood=Blue, Fire=Red, etc.)
+   - **Status**: ACTIVE, RESOLVED, or FALSE_ALARM
+   - **Short Description**: First 2 lines of description (truncated)
+   - **Time**: Formatted date and time (e.g., "Dec 21, 2024 14:30")
+   - **Verification Info**: 
+     - ✓ Confirmations count (green)
+     - ✗ Dismissals count (red)
+
+3. **Empty States**:
+   - Shows message if no reports found
+   - Different messages for Active vs Past tabs
+
+4. **Loading State**:
+   - Shows loading spinner while fetching from Firestore
+
+5. **Error Handling**:
+   - Shows error message if fetch fails
+   - Retry button to reload reports
+
+6. **Tap to View Details**:
+   - Tapping any report item navigates to Report Details screen
+
+**Key Features:**
+- Fetches reports from Firestore in real-time
+- Filters by status (Active/Past)
+- Color-coded disaster types
+- Verification counts displayed
+- Scrollable list with LazyColumn for performance
+- Empty state handling
+
+**Code Flow:**
+```
+Screen opens → ViewModel loads reports from Firestore → 
+Display in list → User taps item → Navigate to Details
+```
+
+**Status:** ✅ Fully Implemented with Firestore Integration
+
+---
+
+### 6. Report Details Screen (`ReportDetailsScreen.kt`)
+
+**Location:** `app/src/main/java/com/bc230420212/app/ui/screens/reports/ReportDetailsScreen.kt`
+
+**Screen Title:** Report Details
+
+**What This Screen Does:**
+This screen shows complete details of a selected disaster report. Users can view all information, see location, preview media, and verify the report.
+
+**How It Works:**
+1. **Full Report Details**:
+   - **Disaster Type**: Large, color-coded title
+   - **Status Badge**: Colored badge showing ACTIVE/RESOLVED/FALSE_ALARM
+   - **Description**: Full description text (not truncated)
+   - **Location**: 
+     - Address (if available)
+     - GPS coordinates
+     - Map preview placeholder (ready for Google Maps integration)
+   - **Media Preview**: 
+     - Shows if media files exist
+     - Placeholder for media gallery (ready for implementation)
+   - **Report Information**:
+     - Time submitted
+     - Number of confirmations
+     - Number of dismissals
+
+2. **Verification Buttons** (only for ACTIVE reports):
+   - **Confirm Button**: Increments confirmations count in Firestore
+   - **Dismiss Button**: Increments dismissals count in Firestore
+   - **One-Time Voting**: Each user can only vote once per report
+   - Buttons are disabled after user has voted
+   - Shows status message if user has already voted
+   - Both buttons update the report in real-time
+
+3. **Navigation**:
+   - Back button returns to View Reports list
+   - Automatically loads report when screen opens
+
+**Key Features:**
+- Loads report by ID from Firestore
+- Displays all report information
+- Map preview placeholder (ready for Google Maps)
+- Media preview placeholder (ready for Firebase Storage)
+- Confirm/Dismiss functionality with Firestore updates
+- Color-coded status and disaster types
+- Scrollable layout
+
+**Code Flow:**
+```
+Screen opens with reportId → ViewModel loads report from Firestore → 
+Display all details → User clicks Confirm/Dismiss → 
+Update Firestore → Refresh display
+```
+
+**Status:** ✅ Fully Implemented with Firestore Integration
+
+---
+
+### 7. Map View Screen (`MapViewScreen.kt`)
+
+**Location:** `app/src/main/java/com/bc230420212/app/ui/screens/map/MapViewScreen.kt`
+
+**Screen Title:** Map View
+
+**What This Screen Does:**
+This screen displays all disaster reports on an interactive Google Map. Users can see reports as markers, view details in info windows, and navigate the map.
+
+**How It Works:**
+1. **Google Maps Integration**:
+   - Uses Google Maps SDK for Android
+   - Displays interactive map with zoom and pan
+   - API key configured in AndroidManifest.xml
+
+2. **Report Markers**:
+   - Each report is displayed as a marker on the map
+   - Markers are color-coded by disaster type:
+     - **Flood**: Blue
+     - **Fire**: Red
+     - **Earthquake**: Orange
+     - **Accident**: Yellow
+     - **Storm**: Violet
+     - **Landslide**: Magenta
+     - **Other**: Green
+
+3. **Marker Info Windows**:
+   - Tapping a marker shows an info window with:
+     - **Type**: Disaster type name
+     - **Time**: Formatted date and time
+     - **Status**: ACTIVE, RESOLVED, or FALSE_ALARM
+     - **Verification**: Confirmations and dismissals counts
+     - **Description**: Short description (truncated if long)
+
+4. **Camera Position**:
+   - Defaults to a central location
+   - Automatically adjusts to show first report when loaded
+   - Users can zoom and pan to explore
+
+5. **Loading States**:
+   - Shows loading spinner while fetching reports
+   - Shows error message if fetch fails
+   - Shows empty state if no reports available
+
+**Key Features:**
+- Google Maps integration with API key
+- Color-coded markers by disaster type
+- Info windows with report details
+- Real-time data from Firestore
+- Interactive map navigation
+- Automatic camera positioning
+
+**Code Flow:**
+```
+Screen opens → ViewModel loads reports from Firestore → 
+Display markers on map → User taps marker → 
+Show info window with details
+```
+
+**Dependencies:**
+- `maps-compose`: Google Maps Compose library
+- `play-services-maps`: Google Play Services Maps
+
+**Status:** ✅ Fully Implemented with Google Maps Integration
+
+**Location:** `app/src/main/java/com/bc230420212/app/ui/screens/map/MapViewScreen.kt`
+
+**What It Does:**
+Placeholder screen for displaying disaster reports on an interactive map. Will show:
+- Google Maps integration
+- Markers for each disaster report
+- Color-coded markers by disaster type
+- Report details on marker click
+- Current location tracking
+
+**Status:** Placeholder created, ready for Google Maps integration
+
+---
+
+### 8. SOS Emergency Screen (`SOSScreen.kt`)
+
+**Location:** `app/src/main/java/com/bc230420212/app/ui/screens/sos/SOSScreen.kt`
+
+**What It Does:**
+Placeholder screen for sending emergency SOS alerts. Will allow:
+- Send instant emergency broadcast alerts
+- Share live location with saved contacts
+- Send alert to Firebase for authorities
+- Quick access emergency feature
+
+**Status:** Placeholder created, ready for implementation
+
+---
+
+### 9. Profile & Settings Screen (`ProfileScreen.kt`)
+
+**Location:** `app/src/main/java/com/bc230420212/app/ui/screens/profile/ProfileScreen.kt`
+
+**What It Does:**
+Placeholder screen for user profile and settings. Will display:
+- User profile information
+- User role (USER/ADMIN)
+- Edit profile settings
+- Manage emergency contacts
+- App preferences
+
+**Status:** Placeholder created, shows user role, ready for expansion
+
+---
+
 ## Future Features (To Be Implemented)
 
-1. **Disaster Reporting**: Users can report disasters with location and photos
-2. **Map View**: Interactive map showing disaster locations
-3. **Report Verification**: Users can confirm or dismiss reports
+1. **Disaster Reporting**: Complete the report disaster functionality with Firestore integration
+2. **Map View**: Integrate Google Maps and display reports as markers
+3. **Report Verification**: Users can confirm or dismiss reports (crowdsourced verification)
 4. **Admin Panel**: Admins can manage and verify reports
-5. **SOS Feature**: Emergency alert with live location
-6. **Push Notifications**: Real-time alerts for new disasters
-7. **Media Storage**: Upload and view disaster photos/videos
+5. **SOS Feature**: Complete emergency alert with live location and contacts
+6. **Push Notifications**: Real-time alerts for new disasters using Firebase Cloud Messaging
+7. **Media Storage**: Upload and view disaster photos/videos using Firebase Storage
 
 ---
 
@@ -518,9 +1120,9 @@ fun doSomething(email: String) {
 
 ---
 
-**Last Updated:** Authentication System Implementation (with detailed comments)
+**Last Updated:** View Reports Screen with List, Details, and Verification (Firestore Integration Complete)
 **Build Status:** ✅ All code errors fixed! (See BUILD_STATUS.md)
-**Next Update:** Disaster Reporting Feature
+**Next Update:** Map View with Google Maps Integration
 
 ---
 

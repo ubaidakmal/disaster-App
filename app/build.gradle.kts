@@ -70,6 +70,16 @@ dependencies {
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)
     
+    // Permissions
+    implementation(libs.accompanist.permissions)
+    
+    // Location Services
+    implementation(libs.play.services.location)
+    
+    // Google Maps
+    implementation(libs.maps.compose)
+    implementation(libs.play.services.maps)
+    
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
