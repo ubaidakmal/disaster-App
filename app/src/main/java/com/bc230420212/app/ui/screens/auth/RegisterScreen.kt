@@ -11,7 +11,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.bc230420212.app.data.model.UserRole
 import com.bc230420212.app.ui.components.AppButton
+import com.bc230420212.app.ui.components.AppDropdown
 import com.bc230420212.app.ui.components.AppTextField
 import com.bc230420212.app.ui.theme.PrimaryColor
 import com.bc230420212.app.ui.theme.TextPrimary
@@ -28,10 +30,12 @@ fun RegisterScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+    var selectedRole by remember { mutableStateOf<UserRole?>(null) }
     var nameError by remember { mutableStateOf(false) }
     var emailError by remember { mutableStateOf(false) }
     var passwordError by remember { mutableStateOf(false) }
     var confirmPasswordError by remember { mutableStateOf(false) }
+    var roleError by remember { mutableStateOf(false) }
 
     val uiState by viewModel.uiState.collectAsState()
 
@@ -130,8 +134,42 @@ fun RegisterScreen(
             isPassword = true,
             isError = confirmPasswordError,
             errorMessage = if (confirmPasswordError) "Passwords do not match" else "",
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+        
+        // User Type Selection
+        Text(
+            text = "Account Type",
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            color = TextPrimary,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp)
+        )
+        
+        AppDropdown(
+            label = "Select Account Type",
+            options = listOf(UserRole.USER.name, UserRole.ADMIN.name),
+            selectedOption = selectedRole?.name ?: "",
+            onOptionSelected = { roleName ->
+                selectedRole = UserRole.valueOf(roleName)
+                roleError = false
+                viewModel.clearError()
+            },
             modifier = Modifier.padding(bottom = 24.dp)
         )
+        
+        if (roleError) {
+            Text(
+                text = "Please select account type",
+                color = com.bc230420212.app.ui.theme.ErrorColor,
+                fontSize = 12.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, top = 4.dp, bottom = 8.dp)
+            )
+        }
 
         // Error Message
         if (uiState.errorMessage != null && !emailError && !passwordError) {
@@ -152,13 +190,19 @@ fun RegisterScreen(
                 emailError = email.isBlank()
                 passwordError = password.isBlank() || password.length < 6
                 confirmPasswordError = confirmPassword != password
+                roleError = selectedRole == null
 
-                if (!nameError && !emailError && !passwordError && !confirmPasswordError) {
-                    viewModel.signUpWithEmail(email.trim(), password, name.trim())
+                if (!nameError && !emailError && !passwordError && !confirmPasswordError && !roleError) {
+                    viewModel.signUpWithEmail(
+                        email.trim(), 
+                        password, 
+                        name.trim(),
+                        selectedRole ?: UserRole.USER
+                    )
                 }
             },
             enabled = !uiState.isLoading && name.isNotBlank() && email.isNotBlank() && 
-                     password.isNotBlank() && confirmPassword.isNotBlank(),
+                     password.isNotBlank() && confirmPassword.isNotBlank() && selectedRole != null,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 

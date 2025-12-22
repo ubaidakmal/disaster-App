@@ -269,5 +269,65 @@ class ReportRepository {
             Result.failure(e)
         }
     }
+    
+    /**
+     * Update report status (Admin only)
+     * 
+     * @param reportId - ID of the report to update
+     * @param newStatus - New status to set (VERIFIED, RESOLVED, FALSE_ALARM)
+     * @return Success or error
+     */
+    suspend fun updateReportStatus(reportId: String, newStatus: com.bc230420212.app.data.model.ReportStatus): Result<Unit> {
+        return try {
+            val reportRef = firestore.collection("reports").document(reportId)
+            
+            // Update status in Firestore
+            reportRef.update("status", newStatus.name).await()
+            
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+    
+    /**
+     * Get pending reports (ACTIVE status) for admin panel
+     * 
+     * @return List of pending/active reports
+     */
+    suspend fun getPendingReports(): Result<List<DisasterReport>> {
+        return try {
+            val snapshot = firestore.collection("reports")
+                .whereEqualTo("status", com.bc230420212.app.data.model.ReportStatus.ACTIVE.name)
+                .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
+                .get()
+                .await()
+            
+            val reports = snapshot.documents.map { doc ->
+                DisasterReport(
+                    id = doc.id,
+                    userId = doc.getString("userId") ?: "",
+                    disasterType = com.bc230420212.app.data.model.DisasterType.valueOf(
+                        doc.getString("disasterType") ?: "OTHER"
+                    ),
+                    description = doc.getString("description") ?: "",
+                    latitude = doc.getDouble("latitude") ?: 0.0,
+                    longitude = doc.getDouble("longitude") ?: 0.0,
+                    address = doc.getString("address") ?: "",
+                    mediaUrls = (doc.get("mediaUrls") as? List<*>)?.mapNotNull { it as? String } ?: emptyList(),
+                    timestamp = doc.getLong("timestamp") ?: System.currentTimeMillis(),
+                    status = com.bc230420212.app.data.model.ReportStatus.valueOf(doc.getString("status") ?: "ACTIVE"),
+                    confirmations = (doc.getLong("confirmations") ?: 0).toInt(),
+                    dismissals = (doc.getLong("dismissals") ?: 0).toInt(),
+                    confirmedBy = (doc.get("confirmedBy") as? List<*>)?.mapNotNull { it as? String } ?: emptyList(),
+                    dismissedBy = (doc.get("dismissedBy") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
+                )
+            }
+            
+            Result.success(reports)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }
 

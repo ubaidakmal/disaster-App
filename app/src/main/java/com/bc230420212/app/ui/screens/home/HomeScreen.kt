@@ -39,6 +39,7 @@ import com.bc230420212.app.ui.viewmodel.AuthViewModel
  * @param onNavigateToMapView - Navigate to Map View screen
  * @param onNavigateToSOS - Navigate to SOS screen
  * @param onNavigateToProfile - Navigate to Profile/Settings screen
+ * @param onNavigateToAdminPanel - Navigate to Admin Panel screen (Admin only)
  * @param viewModel - ViewModel for authentication
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,6 +51,7 @@ fun HomeScreen(
     onNavigateToMapView: () -> Unit,
     onNavigateToSOS: () -> Unit,
     onNavigateToProfile: () -> Unit,
+    onNavigateToAdminPanel: () -> Unit = {},
     viewModel: AuthViewModel = viewModel()
 ) {
     // Get current authentication state
@@ -147,6 +149,55 @@ fun HomeScreen(
                 onClick = onNavigateToProfile,
                 modifier = Modifier.fillMaxWidth()
             )
+            
+            // Admin Panel (only for ADMIN users)
+            if (uiState.userRole == com.bc230420212.app.data.model.UserRole.ADMIN) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = com.bc230420212.app.ui.theme.AccentColor.copy(alpha = 0.1f)
+                    ),
+                    onClick = onNavigateToAdminPanel
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Settings,
+                                contentDescription = "Admin Panel",
+                                tint = com.bc230420212.app.ui.theme.AccentColor,
+                                modifier = Modifier.size(32.dp)
+                            )
+                            Spacer(Modifier.width(16.dp))
+                            Column {
+                                Text(
+                                    text = "Admin Panel",
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = com.bc230420212.app.ui.theme.TextPrimary
+                                )
+                                Text(
+                                    text = "Manage and verify reports",
+                                    fontSize = 14.sp,
+                                    color = com.bc230420212.app.ui.theme.TextSecondary
+                                )
+                            }
+                        }
+                        Icon(
+                            imageVector = Icons.Default.ArrowForward,
+                            contentDescription = "Navigate",
+                            tint = com.bc230420212.app.ui.theme.TextSecondary
+                        )
+                    }
+                }
+            }
 
             // Sign Out Button
             Spacer(modifier = Modifier.height(16.dp))

@@ -21,6 +21,7 @@ import com.bc230420212.app.ui.viewmodel.AuthViewModel
 import com.bc230420212.app.util.GoogleSignInHelper
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.common.api.ApiException
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -50,6 +51,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         
+        // Subscribe to FCM topic for receiving notifications
+        subscribeToNotifications()
+        
         setContent {
             AndroidBasedCrowdsourcedDisasterAlertSafetyAppTheme {
                 Surface(
@@ -76,6 +80,23 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+    
+    /**
+     * Subscribe to FCM topic to receive push notifications
+     * All users subscribe to "allUsers" topic to receive notifications about new reports
+     */
+    private fun subscribeToNotifications() {
+        FirebaseMessaging.getInstance().subscribeToTopic("allUsers")
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    android.util.Log.d("FCM", "Subscribed to notifications topic")
+                } else {
+                    task.exception?.let {
+                        android.util.Log.e("FCM", "Failed to subscribe to notifications topic", it)
+                    }
+                }
+            }
     }
 
     /**

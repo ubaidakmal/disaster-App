@@ -6,6 +6,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.bc230420212.app.ui.screens.admin.AdminPanelScreen
 import com.bc230420212.app.ui.screens.auth.LoginScreen
 import com.bc230420212.app.ui.screens.auth.RegisterScreen
 import com.bc230420212.app.ui.screens.home.HomeScreen
@@ -37,6 +38,7 @@ sealed class Screen(val route: String) {
     object MapView : Screen("map_view")
     object SOS : Screen("sos")
     object Profile : Screen("profile")
+    object AdminPanel : Screen("admin_panel")
 }
 
 /**
@@ -179,6 +181,15 @@ fun NavGraph(
                     navController.navigate(Screen.Login.route) {
                         popUpTo(Screen.Profile.route) { inclusive = true }
                     }
+                }
+            )
+        }
+        
+        // Admin Panel Screen (Admin only)
+        composable(Screen.AdminPanel.route) {
+            AdminPanelScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
                 }
             )
         }

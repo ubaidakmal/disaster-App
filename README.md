@@ -309,7 +309,50 @@ ReportItem(
 
 ---
 
-### 5. DashboardCard Component (`DashboardCard.kt`)
+### 5. SettingsItem Component (`SettingsItem.kt`)
+
+**Location:** `app/src/main/java/com/bc230420212/app/ui/components/SettingsItem.kt`
+
+**What It Does:**
+A reusable component for displaying settings options in the Profile screen. Shows an icon, title, optional subtitle, and trailing content.
+
+**Features:**
+- **Title**: Main text of the setting
+- **Subtitle**: Optional subtitle text
+- **Icon**: Optional icon on the left
+- **Trailing Content**: Optional trailing content (e.g., switch, badge, arrow)
+- **Clickable**: Entire item is clickable
+
+**How to Use:**
+```kotlin
+SettingsItem(
+    title = "Change Password",
+    subtitle = "Update your account password",
+    icon = Icons.Default.Lock,
+    onClick = { /* action */ }
+)
+```
+
+**With Switch:**
+```kotlin
+SettingsItem(
+    title = "Notifications",
+    icon = Icons.Default.Notifications,
+    onClick = { /* toggle */ },
+    trailingContent = {
+        Switch(checked = enabled, onCheckedChange = { /* update */ })
+    }
+)
+```
+
+**Why We Created This:**
+- Consistent settings UI across the app
+- Easy to add new settings options
+- Supports different trailing content types
+
+---
+
+### 6. DashboardCard Component (`DashboardCard.kt`)
 
 **Location:** `app/src/main/java/com/bc230420212/app/ui/components/DashboardCard.kt`
 
@@ -339,7 +382,7 @@ DashboardCard(
 
 ---
 
-### 5. AppTextField Component (`AppTextField.kt`)
+### 7. AppTextField Component (`AppTextField.kt`)
 
 **Location:** `app/src/main/java/com/bc230420212/app/ui/components/AppTextField.kt`
 
@@ -371,7 +414,7 @@ AppTextField(
 
 ---
 
-### 6. AppColors (`AppColors.kt`)
+### 8. AppColors (`AppColors.kt`)
 
 **Location:** `app/src/main/java/com/bc230420212/app/ui/theme/AppColors.kt`
 
@@ -444,8 +487,35 @@ Defines the structure of a disaster report in the app.
 
 **ReportStatus Enum:**
 - `ACTIVE`: Report is active and needs attention
+- `VERIFIED`: Report has been verified by admin
 - `RESOLVED`: Report has been resolved
 - `FALSE_ALARM`: Report was a false alarm
+
+---
+
+### SOSAlert Model (`SOSAlert.kt`)
+
+**Location:** `app/src/main/java/com/bc230420212/app/data/model/SOSAlert.kt`
+
+**What It Does:**
+Defines the structure of an SOS emergency alert in the app.
+
+**Alert Properties:**
+- `id`: Unique alert ID from Firestore
+- `userId`: ID of user who sent the alert
+- `userEmail`: Email of the user
+- `userName`: Name of the user
+- `latitude`: GPS latitude coordinate at time of alert
+- `longitude`: GPS longitude coordinate at time of alert
+- `address`: Human-readable address (optional)
+- `timestamp`: When the alert was sent
+- `status`: Alert status (ACTIVE, RESPONDED, RESOLVED)
+- `message`: Optional message from the user
+
+**SOSStatus Enum:**
+- `ACTIVE`: Alert is active and needs response
+- `RESPONDED`: Alert has been responded to
+- `RESOLVED`: Alert has been resolved
 
 ---
 
@@ -644,6 +714,76 @@ Handles all Firestore operations related to disaster reports, including one-time
 - Separates Firestore code from UI code
 - Makes testing easier
 - Can change Firestore implementation without changing screens
+
+---
+
+## Push Notifications (FCM)
+
+### Overview
+
+The app uses Firebase Cloud Messaging (FCM) to send push notifications to all users when a new disaster report is created.
+
+### Architecture
+
+**Client-Server Architecture:**
+
+1. **Android App (Client)**:
+   - User creates disaster report
+   - Report is saved to Firestore
+   - App subscribes to "allUsers" FCM topic
+   - App receives and displays notifications
+
+2. **Cloud Function (Server)**:
+   - Automatically detects new report in Firestore
+   - Sends FCM notification to "allUsers" topic
+   - Runs on Firebase servers (not in app)
+
+### How It Works
+
+```
+User creates report → Saved to Firestore → 
+Cloud Function triggered → Sends FCM notification → 
+All users receive notification
+```
+
+### Notification Content
+
+- **Title**: "New Disaster Report"
+- **Body**: "{DisasterType} reported near your location"
+  - Example: "Fire reported near your location"
+  - Example: "Flood reported near your location"
+
+### Implementation Files
+
+1. **FCMService.kt**: Handles receiving and displaying notifications
+   - Location: `app/src/main/java/com/bc230420212/app/service/FCMService.kt`
+   - Receives FCM messages
+   - Creates notification channel
+   - Displays notifications to users
+
+2. **Cloud Function**: Sends notifications when reports are created
+   - Location: `functions/index.js`
+   - Automatically triggered on new report
+   - Sends to "allUsers" topic
+
+3. **MainActivity.kt**: Subscribes to notifications topic
+   - Auto-subscribes to "allUsers" topic on app start
+
+### Setup Instructions
+
+See `FCM_SETUP.md` for detailed setup instructions.
+
+**Quick Setup:**
+1. Deploy Cloud Function: `firebase deploy --only functions`
+2. App automatically subscribes to notifications
+3. Test by creating a disaster report
+
+### Important Points for HOD
+
+- **App creates the report** → Saved to Firestore
+- **Server sends notification** → Cloud Function detects new report and sends FCM notification
+- **All users receive notification** → Via FCM topic subscription
+- **Automatic process** → No manual intervention needed
 
 ---
 
@@ -1026,14 +1166,69 @@ Placeholder screen for displaying disaster reports on an interactive map. Will s
 
 **Location:** `app/src/main/java/com/bc230420212/app/ui/screens/sos/SOSScreen.kt`
 
-**What It Does:**
-Placeholder screen for sending emergency SOS alerts. Will allow:
-- Send instant emergency broadcast alerts
-- Share live location with saved contacts
-- Send alert to Firebase for authorities
-- Quick access emergency feature
+**Screen Title:** SOS Emergency
 
-**Status:** Placeholder created, ready for implementation
+**What This Screen Does:**
+This screen allows users to send emergency SOS alerts with their live location. It provides a quick and easy way to request emergency assistance.
+
+**How It Works:**
+1. **Big SOS Button**:
+   - Large, prominent circular SOS button (200dp)
+   - Red color (ErrorColor) for high visibility
+   - "SOS EMERGENCY" text
+   - Always visible and easy to tap
+
+2. **Live Location Display**:
+   - Automatically gets user's current GPS location when screen opens
+   - Shows live location coordinates
+   - Displays address if available
+   - Updates in real-time
+   - Shows loading indicator while getting location
+
+3. **Send SOS Alert Button**:
+   - Large button below the SOS indicator
+   - Sends SOS alert to Firebase system
+   - Includes current location coordinates
+   - Includes timestamp
+   - Disabled until location is obtained
+
+4. **Alert Information**:
+   - User ID and email
+   - GPS coordinates (latitude, longitude)
+   - Address (if available)
+   - Timestamp
+   - Optional message
+
+5. **Status Messages**:
+   - Success message when alert is sent
+   - Error message if sending fails
+   - Loading indicator while sending
+
+**Key Features:**
+- Big, prominent SOS button for quick access
+- Live location tracking using GPS
+- Automatic location capture
+- Firebase integration for storing alerts
+- Real-time status feedback
+- Emergency-focused UI design
+
+**Code Flow:**
+```
+Screen opens → Get current location → Display location → 
+User taps SOS button → Send alert to Firebase → 
+Show success/error message
+```
+
+**Firestore Structure:**
+SOS alerts are saved to the `sosAlerts` collection with:
+- userId, userEmail, userName
+- latitude, longitude, address
+- timestamp, status (ACTIVE)
+- message (optional)
+
+**Status:** ✅ Fully Implemented with Firebase Integration
+
+**Note:** Contacts integration is prepared (permissions added) but can be implemented later to send SMS/notifications to saved emergency contacts.
 
 ---
 
@@ -1041,15 +1236,171 @@ Placeholder screen for sending emergency SOS alerts. Will allow:
 
 **Location:** `app/src/main/java/com/bc230420212/app/ui/screens/profile/ProfileScreen.kt`
 
-**What It Does:**
-Placeholder screen for user profile and settings. Will display:
-- User profile information
-- User role (USER/ADMIN)
-- Edit profile settings
-- Manage emergency contacts
-- App preferences
+**Screen Title:** Profile & Settings
 
-**Status:** Placeholder created, shows user role, ready for expansion
+**What This Screen Does:**
+This screen displays user profile information and provides essential settings options for managing the app and account.
+
+**How It Works:**
+1. **Profile Header**:
+   - Profile picture placeholder with user's initial
+   - User's display name
+   - User's email address
+   - Role badge (USER/ADMIN) with color coding
+
+2. **Account Section**:
+   - **Change Password**: Opens dialog to change account password
+     - Requires current password
+     - New password confirmation
+     - Password validation
+     - Firebase authentication integration
+
+3. **Settings Section**:
+   - **Notifications**: Toggle switch for push notifications
+     - Enable/disable notifications
+     - Toggle switch UI
+   - **Privacy Policy**: View privacy policy (placeholder)
+   - **Terms of Service**: View terms and conditions (placeholder)
+
+4. **About Section**:
+   - **App Version**: Shows app version (1.0.0)
+     - Opens About dialog with app information
+   - **Help & Support**: Get help and contact support (placeholder)
+
+5. **Sign Out Button**:
+   - Large button at bottom
+   - Signs out from Firebase
+   - Returns to Login screen
+
+**Key Features:**
+- User profile display with role badge
+- Change password functionality
+- Notification settings toggle
+- About dialog with app information
+- Privacy and Terms links (ready for implementation)
+- Clean, organized settings UI
+- Scrollable layout
+
+**Code Flow:**
+```
+Screen opens → Load user info from Firebase Auth → 
+Display profile → User clicks settings option → 
+Open dialog/perform action → Update Firebase if needed
+```
+
+**Status:** ✅ Fully Implemented with Essential Settings
+
+**Components Used:**
+- `SettingsItem` - Reusable settings option component
+- `AppButton` - For sign out
+- `ChangePasswordDialog` - Dialog for password change
+- `AboutDialog` - Dialog showing app information
+
+---
+
+### 10. Admin Panel Screen (`AdminPanelScreen.kt`)
+
+**Location:** `app/src/main/java/com/bc230420212/app/ui/screens/admin/AdminPanelScreen.kt`
+
+**Screen Title:** Admin Panel
+
+**What This Screen Does:**
+This screen is exclusively accessible to ADMIN users and allows them to manage disaster reports by updating their status. Only users with the ADMIN role in the database can access this screen.
+
+**Access Control:**
+- Role-based access: Only ADMIN users can see and access the Admin Panel
+- Admin Panel card appears in Home Screen only when `userRole == ADMIN`
+- Role is checked from Firestore user document (`role` field)
+
+**How It Works:**
+1. **Admin Login Flow**:
+   - Admin logs in using Firebase Authentication
+   - App checks user role from Firestore (`users/{userId}/role`)
+   - If role is "ADMIN", Admin Panel card appears in Home Screen
+   - Admin taps the Admin Panel card to navigate
+
+2. **Pending Reports Display**:
+   - Shows all reports with status = ACTIVE (pending reports)
+   - Reports are sorted by timestamp (newest first)
+   - Each report shows:
+     - Disaster type (color-coded)
+     - Status badge (ACTIVE - yellow)
+     - Description (truncated to 2 lines)
+     - Timestamp (formatted date/time)
+     - Confirmation/dismissal counts
+
+3. **Update Status Options**:
+   - Admin taps "Update Status" button on any report
+   - Dialog appears with three status options:
+     - **VERIFIED**: Verify the report as accurate (green)
+       - Description: "Verify the report as accurate"
+     - **RESOLVED**: Mark report as resolved (green)
+       - Description: "Mark report as resolved"
+     - **FALSE_ALARM**: Mark as false alarm (red)
+       - Description: "Mark as false alarm"
+       - Description: "Mark as false alarm"
+   - Admin selects desired status
+   - Status is updated in Firestore
+   - Reports list automatically refreshes
+
+4. **Status Update Process**:
+   - `updateReportStatus(reportId, newStatus)` is called
+   - Firestore document is updated: `reports/{reportId}/status = newStatus`
+   - All users see updated status in:
+     - View Reports screen (list view)
+     - Map View screen (marker info windows)
+     - Report Details screen
+
+**Key Features:**
+- Role-based access control (ADMIN only)
+- Pending reports list (ACTIVE status only)
+- Status update dialog with clear options
+- Real-time status updates visible to all users
+- Color-coded status indicators
+- Loading and error states
+- Empty state when no pending reports
+
+**Code Flow:**
+```
+Admin logs in → Role checked from Firestore → 
+Admin Panel visible in Home → Admin taps Admin Panel → 
+Load pending reports (ACTIVE status) → 
+Admin taps "Update Status" → 
+Dialog shows status options → 
+Admin selects status → 
+Update Firestore → 
+Reports list refreshes → 
+All users see updated status
+```
+
+**Repository Functions:**
+- `getPendingReports()`: Fetches all reports with status = ACTIVE
+- `updateReportStatus(reportId, newStatus)`: Updates report status in Firestore
+
+**ViewModel Functions:**
+- `loadPendingReports()`: Loads pending reports for admin panel
+- `updateReportStatus(reportId, status)`: Updates status and refreshes data
+
+**Status Values:**
+- `ACTIVE`: Report is pending/admin review (yellow)
+- `VERIFIED`: Report has been verified by admin (green)
+- `RESOLVED`: Report has been resolved (green)
+- `FALSE_ALARM`: Report was a false alarm (red)
+
+**UI Components:**
+- Custom `AdminReportItem` - Shows report with update button
+- `StatusUpdateDialog` - Dialog for selecting new status
+- `StatusOption` - Clickable status option cards
+- Color-coded status indicators
+
+**Database Structure:**
+```
+reports/{reportId}:
+  - status: "ACTIVE" | "RESOLVED" | "FALSE_ALARM"
+  - ... other report fields
+```
+
+**Status:** ✅ Fully Implemented with Role-Based Access Control
 
 ---
 
@@ -1120,9 +1471,9 @@ fun doSomething(email: String) {
 
 ---
 
-**Last Updated:** View Reports Screen with List, Details, and Verification (Firestore Integration Complete)
+**Last Updated:** FCM Push Notifications Implementation (Android + Cloud Functions)
 **Build Status:** ✅ All code errors fixed! (See BUILD_STATUS.md)
-**Next Update:** Map View with Google Maps Integration
+**Next Update:** Admin Panel Features
 
 ---
 

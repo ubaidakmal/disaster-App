@@ -142,6 +142,7 @@ private fun getDisasterTypeColor(type: DisasterType): androidx.compose.ui.graphi
 private fun getStatusColor(status: com.bc230420212.app.data.model.ReportStatus): androidx.compose.ui.graphics.Color {
     return when (status) {
         com.bc230420212.app.data.model.ReportStatus.ACTIVE -> WarningColor
+        com.bc230420212.app.data.model.ReportStatus.VERIFIED -> SuccessColor
         com.bc230420212.app.data.model.ReportStatus.RESOLVED -> SuccessColor
         com.bc230420212.app.data.model.ReportStatus.FALSE_ALARM -> ErrorColor
     }

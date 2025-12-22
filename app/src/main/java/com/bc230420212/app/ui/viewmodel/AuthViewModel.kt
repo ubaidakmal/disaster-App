@@ -62,16 +62,19 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    fun signUpWithEmail(email: String, password: String, displayName: String) {
+    fun signUpWithEmail(email: String, password: String, displayName: String, role: UserRole = UserRole.USER) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
             
-            val result = authRepository.signUpWithEmail(email, password, displayName)
+            val result = authRepository.signUpWithEmail(email, password, displayName, role)
             if (result.isSuccess) {
+                // Get the role from Firestore to ensure it's correct
+                val user = result.getOrNull()!!
+                val savedRole = authRepository.getUserRole(user.uid)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     isAuthenticated = true,
-                    userRole = UserRole.USER
+                    userRole = savedRole
                 )
             } else {
                 val exception = result.exceptionOrNull()
@@ -113,6 +116,29 @@ class AuthViewModel : ViewModel() {
 
     fun clearError() {
         _uiState.value = _uiState.value.copy(errorMessage = null)
+    }
+    
+    /**
+     * Change user password
+     */
+    fun changePassword(currentPassword: String, newPassword: String) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+            
+            val result = authRepository.changePassword(currentPassword, newPassword)
+            
+            if (result.isSuccess) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = null
+                )
+            } else {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = result.exceptionOrNull()?.message ?: "Failed to change password"
+                )
+            }
+        }
     }
 }
 

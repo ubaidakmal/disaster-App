@@ -47,6 +47,7 @@ data class DisasterReport(
  */
 enum class ReportStatus {
     ACTIVE,      // Report is active and needs attention
+    VERIFIED,    // Report has been verified by admin
     RESOLVED,    // Report has been resolved
     FALSE_ALARM  // Report was a false alarm
 }

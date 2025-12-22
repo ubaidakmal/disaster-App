@@ -22,7 +22,7 @@ class AuthRepository {
         }
     }
 
-    suspend fun signUpWithEmail(email: String, password: String, displayName: String): Result<FirebaseUser> {
+    suspend fun signUpWithEmail(email: String, password: String, displayName: String, role: UserRole = UserRole.USER): Result<FirebaseUser> {
         return try {
             val result = auth.createUserWithEmailAndPassword(email, password).await()
             result.user?.updateProfile(
@@ -37,7 +37,7 @@ class AuthRepository {
                 "email" to email,
                 "displayName" to displayName,
                 "photoUrl" to "",
-                "role" to UserRole.USER.name
+                "role" to role.name
             )
             firestore.collection("users").document(result.user!!.uid).set(user).await()
 
@@ -83,6 +83,36 @@ class AuthRepository {
 
     fun signOut() {
         auth.signOut()
+    }
+    
+    /**
+     * Change user password
+     * 
+     * @param currentPassword - Current password for verification
+     * @param newPassword - New password to set
+     * @return Result indicating success or failure
+     */
+    suspend fun changePassword(currentPassword: String, newPassword: String): Result<Unit> {
+        return try {
+            val user = auth.currentUser
+            if (user == null) {
+                return Result.failure(Exception("User not authenticated"))
+            }
+            
+            // Re-authenticate user with current password
+            val credential = com.google.firebase.auth.EmailAuthProvider.getCredential(
+                user.email!!,
+                currentPassword
+            )
+            user.reauthenticate(credential).await()
+            
+            // Update password
+            user.updatePassword(newPassword).await()
+            
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }
 
