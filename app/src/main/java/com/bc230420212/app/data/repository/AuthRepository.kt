@@ -22,7 +22,7 @@ class AuthRepository {
         }
     }
 
-    suspend fun signUpWithEmail(email: String, password: String, displayName: String, role: UserRole = UserRole.USER): Result<FirebaseUser> {
+    suspend fun signUpWithEmail(email: String, password: String, displayName: String): Result<FirebaseUser> {
         return try {
             val result = auth.createUserWithEmailAndPassword(email, password).await()
             result.user?.updateProfile(
@@ -37,7 +37,7 @@ class AuthRepository {
                 "email" to email,
                 "displayName" to displayName,
                 "photoUrl" to "",
-                "role" to role.name
+                "role" to UserRole.USER.name
             )
             firestore.collection("users").document(result.user!!.uid).set(user).await()
 
@@ -73,13 +73,29 @@ class AuthRepository {
 
     suspend fun getUserRole(uid: String): UserRole {
         return try {
-            val userDoc = firestore.collection("users").document(uid).get().await()
-            val roleString = userDoc.getString("role") ?: "USER"
+            val userDoc = firestore
+                .collection("users")
+                .document(uid)
+                .get()
+                .await()
+
+            if (!userDoc.exists()) {
+                return UserRole.USER
+            }
+
+            val roleString = userDoc.getString("role")
+                ?.uppercase()
+                ?: "USER"
+
             UserRole.valueOf(roleString)
+
+
+
         } catch (e: Exception) {
             UserRole.USER
         }
     }
+
 
     fun signOut() {
         auth.signOut()

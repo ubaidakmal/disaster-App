@@ -274,15 +274,15 @@ class ReportRepository {
      * Update report status (Admin only)
      * 
      * @param reportId - ID of the report to update
-     * @param newStatus - New status to set (VERIFIED, RESOLVED, FALSE_ALARM)
+     * @param status - New status to set (VERIFIED, RESOLVED, FALSE_ALARM)
      * @return Success or error
      */
-    suspend fun updateReportStatus(reportId: String, newStatus: com.bc230420212.app.data.model.ReportStatus): Result<Unit> {
+    suspend fun updateReportStatus(reportId: String, status: ReportStatus): Result<Unit> {
         return try {
-            val reportRef = firestore.collection("reports").document(reportId)
-            
             // Update status in Firestore
-            reportRef.update("status", newStatus.name).await()
+            firestore.collection("reports").document(reportId)
+                .update("status", status.name)
+                .await()
             
             Result.success(Unit)
         } catch (e: Exception) {
@@ -291,14 +291,14 @@ class ReportRepository {
     }
     
     /**
-     * Get pending reports (ACTIVE status) for admin panel
+     * Get pending reports (ACTIVE status) for admin review
      * 
-     * @return List of pending/active reports
+     * @return List of pending reports
      */
     suspend fun getPendingReports(): Result<List<DisasterReport>> {
         return try {
             val snapshot = firestore.collection("reports")
-                .whereEqualTo("status", com.bc230420212.app.data.model.ReportStatus.ACTIVE.name)
+                .whereEqualTo("status", ReportStatus.ACTIVE.name)
                 .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
                 .get()
                 .await()
@@ -316,7 +316,7 @@ class ReportRepository {
                     address = doc.getString("address") ?: "",
                     mediaUrls = (doc.get("mediaUrls") as? List<*>)?.mapNotNull { it as? String } ?: emptyList(),
                     timestamp = doc.getLong("timestamp") ?: System.currentTimeMillis(),
-                    status = com.bc230420212.app.data.model.ReportStatus.valueOf(doc.getString("status") ?: "ACTIVE"),
+                    status = ReportStatus.valueOf(doc.getString("status") ?: "ACTIVE"),
                     confirmations = (doc.getLong("confirmations") ?: 0).toInt(),
                     dismissals = (doc.getLong("dismissals") ?: 0).toInt(),
                     confirmedBy = (doc.get("confirmedBy") as? List<*>)?.mapNotNull { it as? String } ?: emptyList(),

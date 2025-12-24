@@ -174,53 +174,5 @@ class ReportsViewModel : ViewModel() {
     fun clearSelectedReport() {
         _uiState.value = _uiState.value.copy(selectedReport = null)
     }
-    
-    /**
-     * Update report status (Admin only)
-     */
-    fun updateReportStatus(reportId: String, newStatus: com.bc230420212.app.data.model.ReportStatus) {
-        viewModelScope.launch {
-            val result = reportRepository.updateReportStatus(reportId, newStatus)
-            
-            if (result.isSuccess) {
-                // Reload reports to get updated status
-                loadReports()
-                // Reload selected report if it's the same one
-                _uiState.value.selectedReport?.let {
-                    if (it.id == reportId) {
-                        loadReportById(reportId)
-                    }
-                }
-            } else {
-                _uiState.value = _uiState.value.copy(
-                    errorMessage = result.exceptionOrNull()?.message ?: "Failed to update report status"
-                )
-            }
-        }
-    }
-    
-    /**
-     * Load pending reports for admin panel
-     */
-    fun loadPendingReports() {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
-            
-            val result = reportRepository.getPendingReports()
-            
-            if (result.isSuccess) {
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    reports = result.getOrNull() ?: emptyList(),
-                    errorMessage = null
-                )
-            } else {
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    errorMessage = result.exceptionOrNull()?.message ?: "Failed to load pending reports"
-                )
-            }
-        }
-    }
 }
 

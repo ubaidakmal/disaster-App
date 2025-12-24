@@ -46,7 +46,7 @@ data class DisasterReport(
  * Defines the possible statuses of a disaster report.
  */
 enum class ReportStatus {
-    ACTIVE,      // Report is active and needs attention
+    ACTIVE,      // Report is active and needs attention (pending admin review)
     VERIFIED,    // Report has been verified by admin
     RESOLVED,    // Report has been resolved
     FALSE_ALARM  // Report was a false alarm

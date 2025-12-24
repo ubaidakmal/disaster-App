@@ -1,6 +1,5 @@
 package com.bc230420212.app.ui.screens.admin
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -8,52 +7,43 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.bc230420212.app.data.model.DisasterReport
 import com.bc230420212.app.data.model.ReportStatus
-import com.bc230420212.app.ui.components.ReportItem
+import com.bc230420212.app.ui.components.AppButton
 import com.bc230420212.app.ui.theme.*
-import com.bc230420212.app.ui.viewmodel.ReportsViewModel
+import com.bc230420212.app.ui.viewmodel.AdminViewModel
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.util.*
 
 /**
  * ADMIN PANEL SCREEN
  * 
- * This screen is only accessible to ADMIN users.
- * It allows admins to:
- * - View pending reports (ACTIVE status)
- * - Update report status (VERIFIED, RESOLVED, FALSE_ALARM)
- * - Manage disaster reports
+ * This screen is only accessible to users with ADMIN role.
+ * Admins can:
+ * - View all pending reports (ACTIVE status)
+ * - Update report status to VERIFIED, RESOLVED, or FALSE_ALARM
+ * - See report details before making a decision
  * 
- * @param onNavigateBack - Function to navigate back to home
- * @param viewModel - ViewModel for managing reports
+ * @param onNavigateBack - Function to navigate back
+ * @param onSignOut - Function to sign out
+ * @param viewModel - ViewModel for admin operations
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminPanelScreen(
     onNavigateBack: () -> Unit,
-    viewModel: ReportsViewModel = viewModel()
+    onSignOut: () -> Unit,
+    viewModel: AdminViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    var selectedReportId by remember { mutableStateOf<String?>(null) }
-    var showStatusDialog by remember { mutableStateOf(false) }
-    
-    // Load pending reports when screen opens
-    LaunchedEffect(Unit) {
-        viewModel.loadPendingReports()
-    }
     
     Scaffold(
         topBar = {
@@ -73,10 +63,21 @@ fun AdminPanelScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = AccentColor,
+                    containerColor = PrimaryColor,
                     titleContentColor = TextOnPrimary,
                     navigationIconContentColor = TextOnPrimary
-                )
+                ),
+                actions = {
+                    // Sign Out Button
+                    TextButton(onClick = {
+                        onSignOut()
+                    }) {
+                        Text(
+                            text = "Sign Out",
+                            color = TextOnPrimary
+                        )
+                    }
+                }
             )
         }
     ) { paddingValues ->
@@ -85,178 +86,168 @@ fun AdminPanelScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Header
+            // Header Info
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = AccentColor.copy(alpha = 0.1f)
+                    containerColor = InfoColor.copy(alpha = 0.1f)
                 )
             ) {
-                Text(
-                    text = "Pending Reports",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = TextPrimary,
+                Column(
                     modifier = Modifier.padding(16.dp)
-                )
-                Text(
-                    text = "Update status for disaster reports",
-                    fontSize = 14.sp,
-                    color = TextSecondary,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                )
+                ) {
+                    Text(
+                        text = "Pending Reports",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = TextPrimary
+                    )
+                    Text(
+                        text = "${uiState.pendingReports.size} reports awaiting review",
+                        fontSize = 14.sp,
+                        color = TextSecondary,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
             }
             
-            when {
-                uiState.isLoading -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(color = AccentColor)
-                    }
+            // Error Message
+            uiState.errorMessage?.let { error ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = ErrorColor.copy(alpha = 0.1f)
+                    )
+                ) {
+                    Text(
+                        text = error,
+                        color = ErrorColor,
+                        modifier = Modifier.padding(16.dp)
+                    )
                 }
-                
-                uiState.errorMessage != null -> {
+            }
+            
+            // Loading Indicator
+            if (uiState.isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else if (uiState.pendingReports.isEmpty()) {
+                // Empty State
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
                     Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
-                            text = "Error",
+                            text = "No Pending Reports",
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            color = ErrorColor,
-                            modifier = Modifier.padding(bottom = 8.dp)
+                            color = TextSecondary
                         )
                         Text(
-                            text = uiState.errorMessage!!,
+                            text = "All reports have been reviewed",
                             fontSize = 14.sp,
-                            color = TextSecondary,
-                            modifier = Modifier.padding(bottom = 16.dp)
-                        )
-                        com.bc230420212.app.ui.components.AppButton(
-                            text = "Retry",
-                            onClick = { viewModel.loadPendingReports() }
+                            color = TextSecondary
                         )
                     }
                 }
-                
-                uiState.reports.isEmpty() -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(24.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = "No Pending Reports",
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = TextPrimary,
-                                modifier = Modifier.padding(bottom = 8.dp)
-                            )
-                            Text(
-                                text = "All reports have been processed.",
-                                fontSize = 14.sp,
-                                color = TextSecondary
-                            )
-                        }
-                    }
-                }
-                
-                else -> {
-                    // List of pending reports
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        items(uiState.reports) { report ->
-                            AdminReportItem(
-                                report = report,
-                                onUpdateStatus = { reportId ->
-                                    selectedReportId = reportId
-                                    showStatusDialog = true
-                                }
-                            )
-                        }
+            } else {
+                // Reports List
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(1f),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(uiState.pendingReports) { report ->
+                        AdminReportCard(
+                            report = report,
+                            onUpdateStatus = { status ->
+                                viewModel.updateReportStatus(report.id, status)
+                            },
+                            isUpdating = uiState.isUpdatingStatus
+                        )
                     }
                 }
             }
         }
     }
-    
-    // Status Update Dialog
-    if (showStatusDialog && selectedReportId != null) {
-        StatusUpdateDialog(
-            reportId = selectedReportId!!,
-            onDismiss = {
-                showStatusDialog = false
-                selectedReportId = null
-            },
-            onStatusSelected = { status ->
-                viewModel.updateReportStatus(selectedReportId!!, status)
-                showStatusDialog = false
-                selectedReportId = null
-            }
-        )
-    }
 }
 
 /**
- * Admin Report Item with Update Status button
+ * Admin Report Card
+ * 
+ * Displays a report with action buttons for updating status
  */
 @Composable
-private fun AdminReportItem(
-    report: com.bc230420212.app.data.model.DisasterReport,
-    onUpdateStatus: (String) -> Unit
+private fun AdminReportCard(
+    report: DisasterReport,
+    onUpdateStatus: (ReportStatus) -> Unit,
+    isUpdating: Boolean
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = SurfaceColor
         ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 2.dp
-        )
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Report Info
+            // Report Header
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = report.disasterType.displayName,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = getDisasterTypeColor(report.disasterType)
-                )
+                // Disaster Type Badge
+                Surface(
+                    color = when (report.disasterType) {
+                        com.bc230420212.app.data.model.DisasterType.FLOOD -> FloodColor
+                        com.bc230420212.app.data.model.DisasterType.FIRE -> FireColor
+                        com.bc230420212.app.data.model.DisasterType.EARTHQUAKE -> EarthquakeColor
+                        com.bc230420212.app.data.model.DisasterType.ACCIDENT -> AccidentColor
+                        com.bc230420212.app.data.model.DisasterType.STORM -> OtherDisasterColor
+                        com.bc230420212.app.data.model.DisasterType.LANDSLIDE -> OtherDisasterColor
+                        else -> OtherDisasterColor
+                    },
+                    shape = MaterialTheme.shapes.small
+                ) {
+                    Text(
+                        text = report.disasterType.displayName,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = TextOnPrimary,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                }
                 
+                // Status Badge
                 Surface(
                     color = WarningColor,
                     shape = MaterialTheme.shapes.small
                 ) {
                     Text(
-                        text = report.status.name,
-                        fontSize = 12.sp,
+                        text = "PENDING",
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
                         color = TextOnPrimary,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
@@ -264,179 +255,86 @@ private fun AdminReportItem(
                 }
             }
             
+            // Description
             Text(
                 text = report.description,
                 fontSize = 14.sp,
                 color = TextPrimary,
-                maxLines = 2
+                maxLines = 3
             )
             
+            // Location and Time
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = formatTimestamp(report.timestamp),
+                    text = report.address.ifEmpty { 
+                        "${String.format("%.4f", report.latitude)}, ${String.format("%.4f", report.longitude)}" 
+                    },
                     fontSize = 12.sp,
                     color = TextSecondary
                 )
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Text(
-                        text = "✓ ${report.confirmations}",
-                        fontSize = 12.sp,
-                        color = SuccessColor,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Text(
-                        text = "✗ ${report.dismissals}",
-                        fontSize = 12.sp,
-                        color = ErrorColor,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
+                Text(
+                    text = SimpleDateFormat("MMM dd, HH:mm", Locale.getDefault())
+                        .format(Date(report.timestamp)),
+                    fontSize = 12.sp,
+                    color = TextSecondary
+                )
+            }
+            
+            // Verification Info
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    text = "✓ ${report.confirmations} confirmations",
+                    fontSize = 12.sp,
+                    color = SuccessColor
+                )
+                Text(
+                    text = "✗ ${report.dismissals} dismissals",
+                    fontSize = 12.sp,
+                    color = ErrorColor
+                )
             }
             
             HorizontalDivider()
             
-            // Update Status Button
-            com.bc230420212.app.ui.components.AppButton(
-                text = "Update Status",
-                onClick = { onUpdateStatus(report.id) },
+            // Action Buttons
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                isSecondary = false
-            )
-        }
-    }
-}
-
-/**
- * Status Update Dialog
- */
-@Composable
-private fun StatusUpdateDialog(
-    reportId: String,
-    onDismiss: () -> Unit,
-    onStatusSelected: (ReportStatus) -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { 
-            Text(
-                text = "Update Report Status",
-                fontWeight = FontWeight.Bold
-            ) 
-        },
-        text = {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(
-                    text = "Select new status for this report:",
-                    fontSize = 14.sp,
-                    color = TextSecondary
+                // Verify Button
+                AppButton(
+                    text = "Verify",
+                    onClick = { onUpdateStatus(ReportStatus.VERIFIED) },
+                    modifier = Modifier.weight(1f),
+                    isSecondary = false,
+                    enabled = !isUpdating
                 )
                 
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                // VERIFIED option
-                StatusOption(
-                    status = ReportStatus.VERIFIED,
-                    description = "Verify the report as accurate",
-                    onClick = { onStatusSelected(ReportStatus.VERIFIED) }
+                // Resolve Button
+                AppButton(
+                    text = "Resolve",
+                    onClick = { onUpdateStatus(ReportStatus.RESOLVED) },
+                    modifier = Modifier.weight(1f),
+                    isSecondary = true,
+                    enabled = !isUpdating
                 )
                 
-                // RESOLVED option
-                StatusOption(
-                    status = ReportStatus.RESOLVED,
-                    description = "Mark report as resolved",
-                    onClick = { onStatusSelected(ReportStatus.RESOLVED) }
-                )
-                
-                // FALSE_ALARM option
-                StatusOption(
-                    status = ReportStatus.FALSE_ALARM,
-                    description = "Mark as false alarm",
-                    onClick = { onStatusSelected(ReportStatus.FALSE_ALARM) }
+                // False Alarm Button
+                AppButton(
+                    text = "False Alarm",
+                    onClick = { onUpdateStatus(ReportStatus.FALSE_ALARM) },
+                    modifier = Modifier.weight(1f),
+                    isSecondary = true,
+                    enabled = !isUpdating
                 )
             }
-        },
-        confirmButton = {},
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
-}
-
-/**
- * Status Option Button
- */
-@Composable
-private fun StatusOption(
-    status: ReportStatus,
-    description: String,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(
-            containerColor = getStatusColor(status).copy(alpha = 0.1f)
-        )
-    ) {
-        Column(
-            modifier = Modifier.padding(12.dp)
-        ) {
-            Text(
-                text = status.name,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = getStatusColor(status)
-            )
-            Text(
-                text = description,
-                fontSize = 12.sp,
-                color = TextSecondary,
-                modifier = Modifier.padding(top = 4.dp)
-            )
         }
     }
-}
-
-/**
- * Get color for disaster type
- */
-@Composable
-private fun getDisasterTypeColor(type: com.bc230420212.app.data.model.DisasterType): androidx.compose.ui.graphics.Color = when (type) {
-    com.bc230420212.app.data.model.DisasterType.FLOOD -> FloodColor
-    com.bc230420212.app.data.model.DisasterType.FIRE -> FireColor
-    com.bc230420212.app.data.model.DisasterType.EARTHQUAKE -> EarthquakeColor
-    com.bc230420212.app.data.model.DisasterType.ACCIDENT -> AccidentColor
-    else -> OtherDisasterColor
-}
-
-/**
- * Get color for report status
- */
-@Composable
-private fun getStatusColor(status: ReportStatus): androidx.compose.ui.graphics.Color = when (status) {
-    ReportStatus.ACTIVE -> WarningColor
-    ReportStatus.VERIFIED -> SuccessColor
-    ReportStatus.RESOLVED -> SuccessColor
-    ReportStatus.FALSE_ALARM -> ErrorColor
-}
-
-/**
- * Format timestamp to readable date/time
- */
-private fun formatTimestamp(timestamp: Long): String {
-    val date = Date(timestamp)
-    val format = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
-    return format.format(date)
 }
 

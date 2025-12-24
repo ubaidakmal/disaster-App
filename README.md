@@ -487,7 +487,6 @@ Defines the structure of a disaster report in the app.
 
 **ReportStatus Enum:**
 - `ACTIVE`: Report is active and needs attention
-- `VERIFIED`: Report has been verified by admin
 - `RESOLVED`: Report has been resolved
 - `FALSE_ALARM`: Report was a false alarm
 
@@ -1232,7 +1231,90 @@ SOS alerts are saved to the `sosAlerts` collection with:
 
 ---
 
-### 9. Profile & Settings Screen (`ProfileScreen.kt`)
+### 9. Admin Panel Screen (`AdminPanelScreen.kt`)
+
+**Location:** `app/src/main/java/com/bc230420212/app/ui/screens/admin/AdminPanelScreen.kt`
+
+**Screen Title:** Admin Panel
+
+**What This Screen Does:**
+This screen is exclusively accessible to users with ADMIN role. It allows administrators to review and manage pending disaster reports by updating their status.
+
+**How It Works:**
+1. **Role-Based Access**:
+   - Only users with ADMIN role can access this screen
+   - When an admin logs in, they are automatically routed to Admin Panel instead of Home Screen
+   - Regular users (USER role) are routed to Home Screen
+
+2. **Pending Reports Display**:
+   - Shows all reports with ACTIVE status (pending admin review)
+   - Displays count of pending reports in header
+   - Each report card shows:
+     - Disaster type (color-coded badge)
+     - PENDING status badge
+     - Description
+     - Location (address or coordinates)
+     - Timestamp
+     - Verification counts (confirmations and dismissals)
+
+3. **Status Update Actions**:
+   - **Verify Button**: Updates report status to VERIFIED
+     - Used when admin confirms the report is legitimate
+   - **Resolve Button**: Updates report status to RESOLVED
+     - Used when the disaster has been handled/resolved
+   - **False Alarm Button**: Updates report status to FALSE_ALARM
+     - Used when the report is determined to be incorrect
+
+4. **Real-Time Updates**:
+   - When admin updates a report status, it's immediately removed from pending list
+   - Status update is saved to Firestore
+   - All users see the updated status in View Reports and Map View screens
+
+5. **Empty State**:
+   - Shows message when no pending reports exist
+   - "No Pending Reports - All reports have been reviewed"
+
+**Key Features:**
+- Role-based access control (ADMIN only)
+- Pending reports list (ACTIVE status only)
+- Three status update options (Verified, Resolved, False Alarm)
+- Real-time Firestore updates
+- Automatic list refresh after status update
+- Loading and error states
+- Clean, organized admin interface
+
+**Code Flow:**
+```
+Admin logs in → Check role (ADMIN) → Navigate to Admin Panel → 
+Load pending reports from Firestore → Display reports → 
+Admin clicks status button → Update Firestore → Remove from list
+```
+
+**Status Flow:**
+```
+ACTIVE (pending) → VERIFIED (admin verified) → RESOLVED (handled)
+ACTIVE (pending) → RESOLVED (handled directly)
+ACTIVE (pending) → FALSE_ALARM (incorrect report)
+```
+
+**Dependencies:**
+- `AdminViewModel` - Manages admin operations and state
+- `ReportRepository` - Handles Firestore operations
+- `DisasterReport` model with `ReportStatus` enum
+
+**Status:** ✅ Fully Implemented with Role-Based Access
+
+**Files Created:**
+- `AdminPanelScreen.kt` - Admin panel UI
+- `AdminViewModel.kt` - Admin operations ViewModel
+- Updated `ReportRepository.kt` - Added `updateReportStatus()` and `getPendingReports()`
+- Updated `DisasterReport.kt` - Added VERIFIED status to enum
+- Updated `NavGraph.kt` - Added Admin Panel route
+- Updated `MainActivity.kt` - Role-based navigation routing
+
+---
+
+### 10. Profile & Settings Screen (`ProfileScreen.kt`)
 
 **Location:** `app/src/main/java/com/bc230420212/app/ui/screens/profile/ProfileScreen.kt`
 
@@ -1295,112 +1377,6 @@ Open dialog/perform action → Update Firebase if needed
 - `AppButton` - For sign out
 - `ChangePasswordDialog` - Dialog for password change
 - `AboutDialog` - Dialog showing app information
-
----
-
-### 10. Admin Panel Screen (`AdminPanelScreen.kt`)
-
-**Location:** `app/src/main/java/com/bc230420212/app/ui/screens/admin/AdminPanelScreen.kt`
-
-**Screen Title:** Admin Panel
-
-**What This Screen Does:**
-This screen is exclusively accessible to ADMIN users and allows them to manage disaster reports by updating their status. Only users with the ADMIN role in the database can access this screen.
-
-**Access Control:**
-- Role-based access: Only ADMIN users can see and access the Admin Panel
-- Admin Panel card appears in Home Screen only when `userRole == ADMIN`
-- Role is checked from Firestore user document (`role` field)
-
-**How It Works:**
-1. **Admin Login Flow**:
-   - Admin logs in using Firebase Authentication
-   - App checks user role from Firestore (`users/{userId}/role`)
-   - If role is "ADMIN", Admin Panel card appears in Home Screen
-   - Admin taps the Admin Panel card to navigate
-
-2. **Pending Reports Display**:
-   - Shows all reports with status = ACTIVE (pending reports)
-   - Reports are sorted by timestamp (newest first)
-   - Each report shows:
-     - Disaster type (color-coded)
-     - Status badge (ACTIVE - yellow)
-     - Description (truncated to 2 lines)
-     - Timestamp (formatted date/time)
-     - Confirmation/dismissal counts
-
-3. **Update Status Options**:
-   - Admin taps "Update Status" button on any report
-   - Dialog appears with three status options:
-     - **VERIFIED**: Verify the report as accurate (green)
-       - Description: "Verify the report as accurate"
-     - **RESOLVED**: Mark report as resolved (green)
-       - Description: "Mark report as resolved"
-     - **FALSE_ALARM**: Mark as false alarm (red)
-       - Description: "Mark as false alarm"
-       - Description: "Mark as false alarm"
-   - Admin selects desired status
-   - Status is updated in Firestore
-   - Reports list automatically refreshes
-
-4. **Status Update Process**:
-   - `updateReportStatus(reportId, newStatus)` is called
-   - Firestore document is updated: `reports/{reportId}/status = newStatus`
-   - All users see updated status in:
-     - View Reports screen (list view)
-     - Map View screen (marker info windows)
-     - Report Details screen
-
-**Key Features:**
-- Role-based access control (ADMIN only)
-- Pending reports list (ACTIVE status only)
-- Status update dialog with clear options
-- Real-time status updates visible to all users
-- Color-coded status indicators
-- Loading and error states
-- Empty state when no pending reports
-
-**Code Flow:**
-```
-Admin logs in → Role checked from Firestore → 
-Admin Panel visible in Home → Admin taps Admin Panel → 
-Load pending reports (ACTIVE status) → 
-Admin taps "Update Status" → 
-Dialog shows status options → 
-Admin selects status → 
-Update Firestore → 
-Reports list refreshes → 
-All users see updated status
-```
-
-**Repository Functions:**
-- `getPendingReports()`: Fetches all reports with status = ACTIVE
-- `updateReportStatus(reportId, newStatus)`: Updates report status in Firestore
-
-**ViewModel Functions:**
-- `loadPendingReports()`: Loads pending reports for admin panel
-- `updateReportStatus(reportId, status)`: Updates status and refreshes data
-
-**Status Values:**
-- `ACTIVE`: Report is pending/admin review (yellow)
-- `VERIFIED`: Report has been verified by admin (green)
-- `RESOLVED`: Report has been resolved (green)
-- `FALSE_ALARM`: Report was a false alarm (red)
-
-**UI Components:**
-- Custom `AdminReportItem` - Shows report with update button
-- `StatusUpdateDialog` - Dialog for selecting new status
-- `StatusOption` - Clickable status option cards
-- Color-coded status indicators
-
-**Database Structure:**
-```
-reports/{reportId}:
-  - status: "ACTIVE" | "RESOLVED" | "FALSE_ALARM"
-  - ... other report fields
-```
-
-**Status:** ✅ Fully Implemented with Role-Based Access Control
 
 ---
 

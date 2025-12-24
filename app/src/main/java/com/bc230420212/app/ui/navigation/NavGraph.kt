@@ -1,16 +1,18 @@
 package com.bc230420212.app.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.bc230420212.app.ui.screens.admin.AdminPanelScreen
 import com.bc230420212.app.ui.screens.auth.LoginScreen
 import com.bc230420212.app.ui.screens.auth.RegisterScreen
 import com.bc230420212.app.ui.screens.home.HomeScreen
 import com.bc230420212.app.ui.screens.map.MapViewScreen
+import com.bc230420212.app.ui.screens.admin.AdminPanelScreen
 import com.bc230420212.app.ui.screens.profile.ProfileScreen
 import com.bc230420212.app.ui.screens.report.ReportDisasterScreen
 import com.bc230420212.app.ui.screens.reports.ReportDetailsScreen
@@ -30,6 +32,7 @@ sealed class Screen(val route: String) {
     
     // Main Screens
     object Home : Screen("home")
+    object AdminPanel : Screen("admin_panel")
     object ReportDisaster : Screen("report_disaster")
     object ViewReports : Screen("view_reports")
     object ReportDetails : Screen("report_details/{reportId}") {
@@ -38,7 +41,6 @@ sealed class Screen(val route: String) {
     object MapView : Screen("map_view")
     object SOS : Screen("sos")
     object Profile : Screen("profile")
-    object AdminPanel : Screen("admin_panel")
 }
 
 /**
@@ -55,7 +57,8 @@ sealed class Screen(val route: String) {
 fun NavGraph(
     navController: NavHostController,
     onGoogleSignIn: () -> Unit,
-    startDestination: String = Screen.Login.route
+    startDestination: String = Screen.Login.route,
+    authViewModel: com.bc230420212.app.ui.viewmodel.AuthViewModel? = null
 ) {
     NavHost(
         navController = navController,
@@ -63,9 +66,15 @@ fun NavGraph(
     ) {
         // Authentication Screens
         composable(Screen.Login.route) {
+            val authState = authViewModel?.uiState?.collectAsState()?.value
             LoginScreen(
                 onLoginSuccess = {
-                    navController.navigate(Screen.Home.route) {
+                    val destination = if (authState?.userRole == com.bc230420212.app.data.model.UserRole.ADMIN) {
+                        Screen.AdminPanel.route
+                    } else {
+                        Screen.Home.route
+                    }
+                    navController.navigate(destination) {
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
                 },
@@ -75,10 +84,12 @@ fun NavGraph(
                 onGoogleSignIn = onGoogleSignIn
             )
         }
-        
+
         composable(Screen.Register.route) {
+            val authState = authViewModel?.uiState?.collectAsState()?.value
             RegisterScreen(
                 onRegisterSuccess = {
+                    // New users are always regular users, navigate to Home
                     navController.navigate(Screen.Home.route) {
                         popUpTo(Screen.Register.route) { inclusive = true }
                     }
@@ -92,28 +103,56 @@ fun NavGraph(
             )
         }
         
-        // Main Dashboard (Home Screen)
+        // Main Dashboard (Home Screen) - For regular users
         composable(Screen.Home.route) {
-            HomeScreen(
-                onSignOut = {
-                    navController.navigate(Screen.Login.route) {
+            val authState = authViewModel?.uiState?.collectAsState()?.value
+            
+            // Redirect admins to Admin Panel immediately if they try to access Home
+            androidx.compose.runtime.LaunchedEffect(authState?.userRole) {
+                if (authState?.userRole == com.bc230420212.app.data.model.UserRole.ADMIN) {
+                    navController.navigate(Screen.AdminPanel.route) {
                         popUpTo(Screen.Home.route) { inclusive = true }
                     }
+                }
+            }
+            
+            // Only show HomeScreen if user is not admin
+            if (authState?.userRole != com.bc230420212.app.data.model.UserRole.ADMIN) {
+                HomeScreen(
+                    onSignOut = {
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(Screen.Home.route) { inclusive = true }
+                        }
+                    },
+                    onNavigateToReportDisaster = {
+                        navController.navigate(Screen.ReportDisaster.route)
+                    },
+                    onNavigateToViewReports = {
+                        navController.navigate(Screen.ViewReports.route)
+                    },
+                    onNavigateToMapView = {
+                        navController.navigate(Screen.MapView.route)
+                    },
+                    onNavigateToSOS = {
+                        navController.navigate(Screen.SOS.route)
+                    },
+                    onNavigateToProfile = {
+                        navController.navigate(Screen.Profile.route)
+                    }
+                )
+            }
+        }
+        
+        // Admin Panel Screen - For admin users
+        composable(Screen.AdminPanel.route) {
+            AdminPanelScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
                 },
-                onNavigateToReportDisaster = {
-                    navController.navigate(Screen.ReportDisaster.route)
-                },
-                onNavigateToViewReports = {
-                    navController.navigate(Screen.ViewReports.route)
-                },
-                onNavigateToMapView = {
-                    navController.navigate(Screen.MapView.route)
-                },
-                onNavigateToSOS = {
-                    navController.navigate(Screen.SOS.route)
-                },
-                onNavigateToProfile = {
-                    navController.navigate(Screen.Profile.route)
+                onSignOut = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.AdminPanel.route) { inclusive = true }
+                    }
                 }
             )
         }
@@ -181,15 +220,6 @@ fun NavGraph(
                     navController.navigate(Screen.Login.route) {
                         popUpTo(Screen.Profile.route) { inclusive = true }
                     }
-                }
-            )
-        }
-        
-        // Admin Panel Screen (Admin only)
-        composable(Screen.AdminPanel.route) {
-            AdminPanelScreen(
-                onNavigateBack = {
-                    navController.popBackStack()
                 }
             )
         }
