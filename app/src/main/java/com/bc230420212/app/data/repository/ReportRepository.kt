@@ -271,35 +271,16 @@ class ReportRepository {
     }
     
     /**
-     * Update report status (Admin only)
+     * Get all pending reports (ACTIVE status only) for admin review
      * 
-     * @param reportId - ID of the report to update
-     * @param status - New status to set (VERIFIED, RESOLVED, FALSE_ALARM)
-     * @return Success or error
-     */
-    suspend fun updateReportStatus(reportId: String, status: ReportStatus): Result<Unit> {
-        return try {
-            // Update status in Firestore
-            firestore.collection("reports").document(reportId)
-                .update("status", status.name)
-                .await()
-            
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-    
-    /**
-     * Get pending reports (ACTIVE status) for admin review
-     * 
-     * @return List of pending reports
+     * @return List of pending disaster reports, sorted by timestamp (newest first)
      */
     suspend fun getPendingReports(): Result<List<DisasterReport>> {
         return try {
+            // Query without orderBy to avoid requiring a composite index
+            // We'll sort in memory instead
             val snapshot = firestore.collection("reports")
                 .whereEqualTo("status", ReportStatus.ACTIVE.name)
-                .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
                 .get()
                 .await()
             
@@ -324,7 +305,35 @@ class ReportRepository {
                 )
             }
             
-            Result.success(reports)
+            // Sort by timestamp in descending order (newest first)
+            val sortedReports = reports.sortedByDescending { it.timestamp }
+            
+            Result.success(sortedReports)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+    
+    /**
+     * Update report status (Admin only)
+     * 
+     * @param reportId - ID of the report to update
+     * @param newStatus - New status to set (VERIFIED, RESOLVED, FALSE_ALARM)
+     * @return Success or error
+     */
+    suspend fun updateReportStatus(reportId: String, newStatus: ReportStatus): Result<Unit> {
+        return try {
+            val currentUser = auth.currentUser
+            if (currentUser == null) {
+                return Result.failure(Exception("User not authenticated"))
+            }
+            
+            // Update status in Firestore
+            firestore.collection("reports").document(reportId)
+                .update("status", newStatus.name)
+                .await()
+            
+            Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }

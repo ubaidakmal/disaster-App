@@ -53,10 +53,10 @@ fun LoginScreen(
 
     // LaunchedEffect runs when the value inside changes
     // This effect watches for successful authentication
-    // When user is authenticated, automatically navigate based on role
-    LaunchedEffect(uiState.isAuthenticated, uiState.userRole) {
+    // When user is authenticated, automatically navigate to home screen
+    LaunchedEffect(uiState.isAuthenticated) {
         if (uiState.isAuthenticated) {
-            onLoginSuccess()  // Navigate based on role (handled in NavGraph)
+            onLoginSuccess()  // Navigate to home screen
         }
     }
 

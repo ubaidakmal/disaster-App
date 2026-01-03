@@ -11,18 +11,26 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 /**
- * ADMIN VIEW MODEL
+ * ADMIN UI STATE
  * 
- * Manages state and logic for the Admin Panel screen.
- * Handles fetching pending reports and updating report status.
+ * This data class holds the state of the Admin Panel screen.
  */
 data class AdminUiState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-    val pendingReports: List<DisasterReport> = emptyList(),
-    val isUpdatingStatus: Boolean = false
+    val successMessage: String? = null,
+    val pendingReports: List<DisasterReport> = emptyList()
 )
 
+/**
+ * ADMIN VIEWMODEL
+ * 
+ * This ViewModel manages the state and logic for the Admin Panel screen.
+ * It handles:
+ * - Fetching pending reports
+ * - Updating report status
+ * - Managing admin operations
+ */
 class AdminViewModel : ViewModel() {
     private val reportRepository = ReportRepository()
     
@@ -45,39 +53,44 @@ class AdminViewModel : ViewModel() {
             if (result.isSuccess) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    pendingReports = result.getOrNull() ?: emptyList()
+                    pendingReports = result.getOrNull() ?: emptyList(),
+                    errorMessage = null
                 )
             } else {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = result.exceptionOrNull()?.message ?: "Failed to load reports"
+                    errorMessage = result.exceptionOrNull()?.message ?: "Failed to load pending reports"
                 )
             }
         }
     }
     
     /**
-     * Update report status (Admin action)
-     * 
-     * @param reportId - ID of the report to update
-     * @param status - New status (VERIFIED, RESOLVED, FALSE_ALARM)
+     * Update report status
      */
-    fun updateReportStatus(reportId: String, status: ReportStatus) {
+    fun updateReportStatus(reportId: String, newStatus: ReportStatus) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isUpdatingStatus = true, errorMessage = null)
+            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null, successMessage = null)
             
-            val result = reportRepository.updateReportStatus(reportId, status)
+            val result = reportRepository.updateReportStatus(reportId, newStatus)
             
             if (result.isSuccess) {
-                // Remove the updated report from pending list
                 _uiState.value = _uiState.value.copy(
-                    isUpdatingStatus = false,
-                    pendingReports = _uiState.value.pendingReports.filter { it.id != reportId }
+                    isLoading = false,
+                    successMessage = "Report status updated to ${newStatus.name}",
+                    errorMessage = null
                 )
+                
+                // Reload pending reports
+                loadPendingReports()
+                
+                // Clear success message after 3 seconds
+                kotlinx.coroutines.delay(3000)
+                _uiState.value = _uiState.value.copy(successMessage = null)
             } else {
                 _uiState.value = _uiState.value.copy(
-                    isUpdatingStatus = false,
-                    errorMessage = result.exceptionOrNull()?.message ?: "Failed to update status"
+                    isLoading = false,
+                    errorMessage = result.exceptionOrNull()?.message ?: "Failed to update report status"
                 )
             }
         }
@@ -88,6 +101,13 @@ class AdminViewModel : ViewModel() {
      */
     fun clearError() {
         _uiState.value = _uiState.value.copy(errorMessage = null)
+    }
+    
+    /**
+     * Clear success message
+     */
+    fun clearSuccess() {
+        _uiState.value = _uiState.value.copy(successMessage = null)
     }
 }
 

@@ -7,11 +7,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
-import com.bc230420212.app.data.model.UserRole
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -19,6 +17,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bc230420212.app.ui.components.AppButton
 import com.bc230420212.app.ui.components.DashboardCard
+import com.bc230420212.app.ui.theme.AccentColor
 import com.bc230420212.app.ui.theme.PrimaryColor
 import com.bc230420212.app.ui.theme.TextOnPrimary
 import com.bc230420212.app.ui.theme.TextPrimary
@@ -41,6 +40,7 @@ import com.bc230420212.app.ui.viewmodel.AuthViewModel
  * @param onNavigateToMapView - Navigate to Map View screen
  * @param onNavigateToSOS - Navigate to SOS screen
  * @param onNavigateToProfile - Navigate to Profile/Settings screen
+ * @param onNavigateToAdminPanel - Navigate to Admin Panel screen (admin only)
  * @param viewModel - ViewModel for authentication
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,6 +52,7 @@ fun HomeScreen(
     onNavigateToMapView: () -> Unit,
     onNavigateToSOS: () -> Unit,
     onNavigateToProfile: () -> Unit,
+    onNavigateToAdminPanel: () -> Unit = {},
     viewModel: AuthViewModel = viewModel()
 ) {
     // Get current authentication state
@@ -149,6 +150,29 @@ fun HomeScreen(
                 onClick = onNavigateToProfile,
                 modifier = Modifier.fillMaxWidth()
             )
+
+            // Admin Panel Card (Only for ADMIN users)
+            if (uiState.userRole == com.bc230420212.app.data.model.UserRole.ADMIN) {
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    color = AccentColor.copy(alpha = 0.3f)
+                )
+                
+                Text(
+                    text = "Admin Tools",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = AccentColor,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+                
+                DashboardCard(
+                    title = "Admin Panel",
+                    icon = Icons.Default.Settings,
+                    onClick = onNavigateToAdminPanel,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
             // Sign Out Button
             Spacer(modifier = Modifier.height(16.dp))

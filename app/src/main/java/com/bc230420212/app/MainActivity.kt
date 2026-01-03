@@ -9,13 +9,11 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
-import com.bc230420212.app.data.model.UserRole
 import com.bc230420212.app.ui.navigation.NavGraph
 import com.bc230420212.app.ui.navigation.Screen
 import com.bc230420212.app.ui.theme.AndroidBasedCrowdsourcedDisasterAlertSafetyAppTheme
@@ -65,51 +63,11 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
                     val uiState by authViewModel.uiState.collectAsState()
                     
-                    // Determine start destination based on auth state and user role
+                    // Determine start destination based on auth state
                     val startDestination = if (uiState.isAuthenticated) {
-                        // If user is admin, show Admin Panel; otherwise show Home Screen
-                        if (uiState.userRole == UserRole.ADMIN) {
-                            Screen.AdminPanel.route
-                        } else {
-                            Screen.Home.route
-                        }
+                        Screen.Home.route
                     } else {
                         Screen.Login.route
-                    }
-                    
-                    // Navigate to correct screen when role changes (e.g., after async role load)
-                    // This ensures admins are redirected to Admin Panel even if they initially land on Home
-                    LaunchedEffect(uiState.isAuthenticated, uiState.userRole) {
-                        if (uiState.isAuthenticated) {
-                            // Small delay to ensure navigation is ready
-                            kotlinx.coroutines.delay(100)
-                            
-                            val currentRoute = navController.currentDestination?.route
-                            val targetRoute = if (uiState.userRole == UserRole.ADMIN) {
-                                Screen.AdminPanel.route
-                            } else {
-                                Screen.Home.route
-                            }
-                            
-                            // Navigate if we're on the wrong screen
-                            // Allow navigation from Login/Register, but also from Home if user is admin
-                            if (currentRoute != targetRoute) {
-                                // If admin is on Home screen, redirect to Admin Panel
-                                if (uiState.userRole == UserRole.ADMIN && currentRoute == Screen.Home.route) {
-                                    navController.navigate(Screen.AdminPanel.route) {
-                                        // Replace Home with Admin Panel
-                                        popUpTo(Screen.Home.route) { inclusive = true }
-                                    }
-                                } else if (currentRoute == Screen.Login.route || currentRoute == Screen.Register.route) {
-                                    // Normal navigation from login/register
-                                    navController.navigate(targetRoute) {
-                                        popUpTo(if (currentRoute == Screen.Login.route) Screen.Login.route else Screen.Register.route) { 
-                                            inclusive = true 
-                                        }
-                                    }
-                                }
-                            }
-                        }
                     }
                     
                     NavGraph(
@@ -117,8 +75,7 @@ class MainActivity : ComponentActivity() {
                         onGoogleSignIn = {
                             signInWithGoogle()
                         },
-                        startDestination = startDestination,
-                        authViewModel = authViewModel
+                        startDestination = startDestination
                     )
                 }
             }

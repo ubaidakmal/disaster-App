@@ -73,29 +73,13 @@ class AuthRepository {
 
     suspend fun getUserRole(uid: String): UserRole {
         return try {
-            val userDoc = firestore
-                .collection("users")
-                .document(uid)
-                .get()
-                .await()
-
-            if (!userDoc.exists()) {
-                return UserRole.USER
-            }
-
-            val roleString = userDoc.getString("role")
-                ?.uppercase()
-                ?: "USER"
-
+            val userDoc = firestore.collection("users").document(uid).get().await()
+            val roleString = userDoc.getString("role") ?: "USER"
             UserRole.valueOf(roleString)
-
-
-
         } catch (e: Exception) {
             UserRole.USER
         }
     }
-
 
     fun signOut() {
         auth.signOut()
