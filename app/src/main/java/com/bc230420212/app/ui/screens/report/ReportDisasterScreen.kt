@@ -1,11 +1,28 @@
 package com.bc230420212.app.ui.screens.report
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.location.Geocoder
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.runtime.remember
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.LocationOn
@@ -55,6 +72,7 @@ fun ReportDisasterScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+    val activity = context as? Activity
     
     // Location permissions
     val locationPermissionsState = rememberMultiplePermissionsState(
@@ -64,13 +82,48 @@ fun ReportDisasterScreen(
         )
     )
     
-    // Camera permissions for photo/video
+    // Camera and storage permissions for photo/video
     val cameraPermissionsState = rememberMultiplePermissionsState(
         permissions = listOf(
             Manifest.permission.CAMERA,
-            Manifest.permission.READ_EXTERNAL_STORAGE
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.READ_MEDIA_IMAGES
         )
     )
+    
+    // Image picker launcher - Using GetMultipleContents for image selection
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetMultipleContents()
+    ) { uris: List<Uri> ->
+        android.util.Log.d("ReportDisaster", "Image picker returned ${uris.size} images")
+        if (uris.isNotEmpty()) {
+            val imagePaths = uris.mapNotNull { uri ->
+                try {
+                    android.util.Log.d("ReportDisaster", "Processing URI: $uri")
+                    // Convert URI to file path
+                    val inputStream = context.contentResolver.openInputStream(uri)
+                    val fileName = uri.lastPathSegment ?: "image_${System.currentTimeMillis()}"
+                    val tempFile = java.io.File(context.cacheDir, "temp_${System.currentTimeMillis()}_$fileName")
+                    inputStream?.use { input ->
+                        tempFile.outputStream().use { output ->
+                            input.copyTo(output)
+                        }
+                    }
+                    android.util.Log.d("ReportDisaster", "Image saved to: ${tempFile.absolutePath}")
+                    tempFile.absolutePath
+                } catch (e: Exception) {
+                    android.util.Log.e("ReportDisaster", "Error copying image: ${e.message}", e)
+                    null
+                }
+            }
+            if (imagePaths.isNotEmpty()) {
+                android.util.Log.d("ReportDisaster", "Adding ${imagePaths.size} images to viewModel")
+                viewModel.addSelectedImages(imagePaths)
+            }
+        } else {
+            android.util.Log.d("ReportDisaster", "No images selected")
+        }
+    }
     
     // Show success dialog
     LaunchedEffect(uiState.isSuccess) {
@@ -251,38 +304,90 @@ fun ReportDisasterScreen(
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text(
-                        text = "📷",
-                        fontSize = 48.sp
-                    )
-                    Text(
-                        text = "Photo/Video Upload",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextPrimary
-                    )
-                    Text(
-                        text = "This feature will be implemented to allow uploading photos/videos to Firebase Storage",
-                        fontSize = 12.sp,
-                        color = TextSecondary,
-                        modifier = Modifier.padding(horizontal = 8.dp)
-                    )
+                    // Selected Images Preview
+                    if (uiState.selectedImagePaths.isNotEmpty()) {
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            items(uiState.selectedImagePaths.size) { index ->
+                                val imagePath = uiState.selectedImagePaths[index]
+                                Box(modifier = Modifier.size(100.dp)) {
+                                    Image(
+                                        painter = rememberAsyncImagePainter(
+                                            ImageRequest.Builder(LocalContext.current)
+                                                .data(imagePath)
+                                                .build()
+                                        ),
+                                        contentDescription = "Selected image ${index + 1}",
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .clip(RoundedCornerShape(8.dp)),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                    IconButton(
+                                        onClick = { viewModel.removeSelectedImage(imagePath) },
+                                        modifier = Modifier.align(Alignment.TopEnd)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Close,
+                                            contentDescription = "Remove",
+                                            tint = com.bc230420212.app.ui.theme.ErrorColor
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Upload Button
                     AppButton(
-                        text = "Upload Media (Coming Soon)",
+                        text = if (uiState.selectedImagePaths.isEmpty()) "Select Images" else "Add More Images",
                         onClick = {
-                            // TODO: Implement photo/video upload
-                            if (cameraPermissionsState.allPermissionsGranted) {
-                                // Open camera/gallery
-                            } else {
-                                cameraPermissionsState.launchMultiplePermissionRequest()
+                            android.util.Log.d("ReportDisaster", "Select Images button clicked")
+                            try {
+                                // Launch image picker
+                                // GetMultipleContents uses the system picker and doesn't require explicit permissions
+                                val result = imagePickerLauncher.launch("image/*")
+                                android.util.Log.d("ReportDisaster", "Image picker launcher invoked, result: $result")
+                            } catch (e: Exception) {
+                                android.util.Log.e("ReportDisaster", "Error launching image picker: ${e.message}", e)
+                                // Fallback: Try using Intent directly
+                                try {
+                                    val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                                        type = "image/*"
+                                        putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+                                        addCategory(Intent.CATEGORY_OPENABLE)
+                                    }
+                                    val pickIntent = Intent.createChooser(intent, "Select Images")
+                                    activity?.startActivityForResult(pickIntent, 100)
+                                } catch (e2: Exception) {
+                                    android.util.Log.e("ReportDisaster", "Fallback intent also failed: ${e2.message}", e2)
+                                }
                             }
                         },
-                        enabled = false, // Disabled until implemented
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        isSecondary = uiState.selectedImagePaths.isNotEmpty()
                     )
+                    
+                    if (uiState.isUploadingImages && uiState.uploadProgress != null) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(16.dp),
+                                strokeWidth = 2.dp
+                            )
+                            Text(
+                                text = uiState.uploadProgress!!,
+                                fontSize = 12.sp,
+                                color = TextSecondary
+                            )
+                        }
+                    }
                 }
             }
             

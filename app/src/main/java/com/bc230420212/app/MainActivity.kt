@@ -19,6 +19,7 @@ import com.bc230420212.app.ui.navigation.NavGraph
 import com.bc230420212.app.ui.navigation.Screen
 import com.bc230420212.app.ui.theme.AndroidBasedCrowdsourcedDisasterAlertSafetyAppTheme
 import com.bc230420212.app.ui.viewmodel.AuthViewModel
+import com.bc230420212.app.util.CloudinaryHelper
 import com.bc230420212.app.util.GoogleSignInHelper
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.common.api.ApiException
@@ -51,6 +52,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        
+        // Initialize Cloudinary
+        CloudinaryHelper.init(this)
         
         // Subscribe to FCM topic for receiving notifications
         subscribeToNotifications()

@@ -6,6 +6,7 @@ import com.bc230420212.app.data.model.DisasterReport
 import com.bc230420212.app.data.model.DisasterType
 import com.bc230420212.app.data.model.ReportStatus
 import com.bc230420212.app.data.repository.ReportRepository
+import com.bc230420212.app.util.CloudinaryHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,7 +26,10 @@ data class ReportUiState(
     val latitude: Double = 0.0,
     val longitude: Double = 0.0,
     val address: String = "",
-    val mediaUrls: List<String> = emptyList()
+    val mediaUrls: List<String> = emptyList(),
+    val selectedImagePaths: List<String> = emptyList(), // Local file paths
+    val isUploadingImages: Boolean = false,
+    val uploadProgress: String? = null
 )
 
 /**
@@ -69,6 +73,31 @@ class ReportViewModel : ViewModel() {
     }
     
     /**
+     * Add selected image paths
+     */
+    fun addSelectedImages(imagePaths: List<String>) {
+        _uiState.value = _uiState.value.copy(
+            selectedImagePaths = _uiState.value.selectedImagePaths + imagePaths
+        )
+    }
+    
+    /**
+     * Remove selected image
+     */
+    fun removeSelectedImage(imagePath: String) {
+        _uiState.value = _uiState.value.copy(
+            selectedImagePaths = _uiState.value.selectedImagePaths.filter { it != imagePath }
+        )
+    }
+    
+    /**
+     * Clear all selected images
+     */
+    fun clearSelectedImages() {
+        _uiState.value = _uiState.value.copy(selectedImagePaths = emptyList())
+    }
+    
+    /**
      * Clear error message
      */
     fun clearError() {
@@ -84,10 +113,16 @@ class ReportViewModel : ViewModel() {
     
     /**
      * Submit the disaster report to Firestore
+     * First uploads images to Cloudinary, then saves report with image URLs
      */
     fun submitReport() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+            _uiState.value = _uiState.value.copy(
+                isLoading = true,
+                isUploadingImages = false,
+                errorMessage = null,
+                uploadProgress = null
+            )
             
             // Validation
             if (_uiState.value.description.isBlank()) {
@@ -106,14 +141,49 @@ class ReportViewModel : ViewModel() {
                 return@launch
             }
             
-            // Create report object
+            // Upload images to Cloudinary if any are selected
+            val uploadedUrls = mutableListOf<String>()
+            
+            if (_uiState.value.selectedImagePaths.isNotEmpty()) {
+                _uiState.value = _uiState.value.copy(
+                    isUploadingImages = true,
+                    uploadProgress = "Uploading images..."
+                )
+                
+                for ((index, imagePath) in _uiState.value.selectedImagePaths.withIndex()) {
+                    _uiState.value = _uiState.value.copy(
+                        uploadProgress = "Uploading image ${index + 1} of ${_uiState.value.selectedImagePaths.size}..."
+                    )
+                    
+                    val uploadResult = CloudinaryHelper.uploadImage(imagePath)
+                    
+                    if (uploadResult.isSuccess) {
+                        uploadedUrls.add(uploadResult.getOrNull()!!)
+                    } else {
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            isUploadingImages = false,
+                            errorMessage = "Failed to upload image: ${uploadResult.exceptionOrNull()?.message}",
+                            uploadProgress = null
+                        )
+                        return@launch
+                    }
+                }
+            }
+            
+            _uiState.value = _uiState.value.copy(
+                isUploadingImages = false,
+                uploadProgress = "Saving report..."
+            )
+            
+            // Create report object with uploaded image URLs
             val report = DisasterReport(
                 disasterType = _uiState.value.selectedDisasterType,
                 description = _uiState.value.description,
                 latitude = _uiState.value.latitude,
                 longitude = _uiState.value.longitude,
                 address = _uiState.value.address,
-                mediaUrls = _uiState.value.mediaUrls,
+                mediaUrls = uploadedUrls,
                 status = ReportStatus.ACTIVE
             )
             
@@ -124,12 +194,14 @@ class ReportViewModel : ViewModel() {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     isSuccess = true,
-                    errorMessage = null
+                    errorMessage = null,
+                    uploadProgress = null
                 )
             } else {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = result.exceptionOrNull()?.message ?: "Failed to submit report"
+                    errorMessage = result.exceptionOrNull()?.message ?: "Failed to submit report",
+                    uploadProgress = null
                 )
             }
         }

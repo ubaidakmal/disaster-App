@@ -80,6 +80,12 @@ dependencies {
     implementation(libs.maps.compose)
     implementation(libs.play.services.maps)
     
+    // Cloudinary for image upload
+    implementation(libs.cloudinary.android)
+    
+    // Coil for image loading
+    implementation(libs.coil.compose)
+    
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
