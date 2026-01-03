@@ -1,8 +1,16 @@
 package com.bc230420212.app.ui.screens.reports
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
@@ -284,7 +292,7 @@ fun ReportDetailsScreen(
                     // Media Section (if exists)
                     if (report.mediaUrls.isNotEmpty()) {
                         Text(
-                            text = "Media",
+                            text = "Media (${report.mediaUrls.size})",
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = TextPrimary,
@@ -297,21 +305,15 @@ fun ReportDetailsScreen(
                                 containerColor = SurfaceColor
                             )
                         ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
+                            LazyRow(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
-                                Text(
-                                    text = "📷 ${report.mediaUrls.size} media file(s)",
-                                    fontSize = 14.sp,
-                                    color = TextSecondary
-                                )
-                                Text(
-                                    text = "Media preview will be implemented here",
-                                    fontSize = 12.sp,
-                                    color = TextSecondary,
-                                    modifier = Modifier.padding(top = 8.dp)
-                                )
+                                items(report.mediaUrls) { imageUrl ->
+                                    ImageCard(imageUrl = imageUrl)
+                                }
                             }
                         }
                         
@@ -514,5 +516,36 @@ private fun formatTimestamp(timestamp: Long): String {
     val date = Date(timestamp)
     val format = SimpleDateFormat("MMM dd, yyyy 'at' HH:mm", Locale.getDefault())
     return format.format(date)
+}
+
+/**
+ * Image Card Component
+ * Displays a single image from Cloudinary URL
+ */
+@Composable
+private fun ImageCard(imageUrl: String) {
+    Card(
+        modifier = Modifier
+            .width(200.dp)
+            .height(200.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = BackgroundColor
+        )
+    ) {
+        Image(
+            painter = rememberAsyncImagePainter(
+                ImageRequest.Builder(androidx.compose.ui.platform.LocalContext.current)
+                    .data(imageUrl)
+                    .crossfade(true)
+                    .build()
+            ),
+            contentDescription = "Report image",
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(12.dp)),
+            contentScale = ContentScale.Crop
+        )
+    }
 }
 
