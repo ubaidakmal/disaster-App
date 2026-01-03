@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
+import com.bc230420212.app.data.model.UserRole
 import com.bc230420212.app.ui.navigation.NavGraph
 import com.bc230420212.app.ui.navigation.Screen
 import com.bc230420212.app.ui.theme.AndroidBasedCrowdsourcedDisasterAlertSafetyAppTheme
@@ -63,9 +64,14 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
                     val uiState by authViewModel.uiState.collectAsState()
                     
-                    // Determine start destination based on auth state
+                    // Determine start destination based on auth state and user role
                     val startDestination = if (uiState.isAuthenticated) {
-                        Screen.Home.route
+                        // If admin, go directly to Admin Panel, otherwise Home
+                        if (uiState.userRole == UserRole.ADMIN) {
+                            Screen.AdminPanel.route
+                        } else {
+                            Screen.Home.route
+                        }
                     } else {
                         Screen.Login.route
                     }

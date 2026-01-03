@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -31,6 +32,7 @@ import com.bc230420212.app.ui.theme.FireColor
 import com.bc230420212.app.ui.theme.FloodColor
 import com.bc230420212.app.ui.theme.OtherDisasterColor
 import com.bc230420212.app.ui.viewmodel.AdminViewModel
+import com.bc230420212.app.ui.viewmodel.AuthViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -45,13 +47,16 @@ import java.util.Locale
  * - Manage disaster reports
  * 
  * @param onNavigateBack - Function to navigate back to home
+ * @param onSignOut - Function to sign out and navigate to login
  * @param viewModel - ViewModel for admin operations
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminPanelScreen(
     onNavigateBack: () -> Unit,
-    viewModel: AdminViewModel = viewModel()
+    onSignOut: () -> Unit = {},
+    viewModel: AdminViewModel = viewModel(),
+    authViewModel: AuthViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     
@@ -69,6 +74,20 @@ fun AdminPanelScreen(
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back"
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(
+                        onClick = {
+                            authViewModel.signOut()
+                            onSignOut()
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ExitToApp,
+                            contentDescription = "Sign Out",
+                            tint = TextOnPrimary
                         )
                     }
                 },

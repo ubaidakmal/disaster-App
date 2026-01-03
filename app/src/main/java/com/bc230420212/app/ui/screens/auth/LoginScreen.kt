@@ -26,7 +26,7 @@ import com.bc230420212.app.ui.viewmodel.AuthViewModel
  * 1. Email and Password
  * 2. Google Sign-In
  * 
- * @param onLoginSuccess - Function called when login is successful (navigates to home)
+ * @param onLoginSuccess - Function called when login is successful (receives user role, navigates accordingly)
  * @param onNavigateToRegister - Function to navigate to registration screen
  * @param onGoogleSignIn - Function to start Google sign-in process
  * @param viewModel - ViewModel that handles authentication logic
@@ -34,7 +34,7 @@ import com.bc230420212.app.ui.viewmodel.AuthViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
-    onLoginSuccess: () -> Unit,
+    onLoginSuccess: (com.bc230420212.app.data.model.UserRole) -> Unit,
     onNavigateToRegister: () -> Unit,
     onGoogleSignIn: () -> Unit,
     viewModel: AuthViewModel = viewModel()
@@ -53,10 +53,10 @@ fun LoginScreen(
 
     // LaunchedEffect runs when the value inside changes
     // This effect watches for successful authentication
-    // When user is authenticated, automatically navigate to home screen
-    LaunchedEffect(uiState.isAuthenticated) {
+    // When user is authenticated, automatically navigate based on role
+    LaunchedEffect(uiState.isAuthenticated, uiState.userRole) {
         if (uiState.isAuthenticated) {
-            onLoginSuccess()  // Navigate to home screen
+            onLoginSuccess(uiState.userRole)  // Navigate based on user role
         }
     }
 

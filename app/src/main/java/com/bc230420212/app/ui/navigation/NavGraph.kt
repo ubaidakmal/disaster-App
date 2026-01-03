@@ -64,8 +64,14 @@ fun NavGraph(
         // Authentication Screens
         composable(Screen.Login.route) {
             LoginScreen(
-                onLoginSuccess = {
-                    navController.navigate(Screen.Home.route) {
+                onLoginSuccess = { userRole ->
+                    // Navigate to Admin Panel if admin, otherwise Home
+                    val destination = if (userRole == com.bc230420212.app.data.model.UserRole.ADMIN) {
+                        Screen.AdminPanel.route
+                    } else {
+                        Screen.Home.route
+                    }
+                    navController.navigate(destination) {
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
                 },
@@ -78,8 +84,14 @@ fun NavGraph(
         
         composable(Screen.Register.route) {
             RegisterScreen(
-                onRegisterSuccess = {
-                    navController.navigate(Screen.Home.route) {
+                onRegisterSuccess = { userRole ->
+                    // Navigate to Admin Panel if admin, otherwise Home
+                    val destination = if (userRole == com.bc230420212.app.data.model.UserRole.ADMIN) {
+                        Screen.AdminPanel.route
+                    } else {
+                        Screen.Home.route
+                    }
+                    navController.navigate(destination) {
                         popUpTo(Screen.Register.route) { inclusive = true }
                     }
                 },
@@ -193,6 +205,11 @@ fun NavGraph(
             AdminPanelScreen(
                 onNavigateBack = {
                     navController.popBackStack()
+                },
+                onSignOut = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.AdminPanel.route) { inclusive = true }
+                    }
                 }
             )
         }

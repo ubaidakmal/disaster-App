@@ -19,7 +19,7 @@ import com.bc230420212.app.ui.viewmodel.AuthViewModel
 
 @Composable
 fun RegisterScreen(
-    onRegisterSuccess: () -> Unit,
+    onRegisterSuccess: (com.bc230420212.app.data.model.UserRole) -> Unit,
     onNavigateToLogin: () -> Unit,
     onGoogleSignIn: () -> Unit,
     viewModel: AuthViewModel = viewModel()
@@ -35,9 +35,9 @@ fun RegisterScreen(
 
     val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(uiState.isAuthenticated) {
+    LaunchedEffect(uiState.isAuthenticated, uiState.userRole) {
         if (uiState.isAuthenticated) {
-            onRegisterSuccess()
+            onRegisterSuccess(uiState.userRole)  // Navigate based on user role
         }
     }
 
