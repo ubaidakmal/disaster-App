@@ -105,3 +105,4 @@ If you want to start fresh:
 3. **Test in Cloudinary Dashboard** - try uploading manually to verify preset works
 4. **Check preset settings** - ensure it's unsigned and active
 
+

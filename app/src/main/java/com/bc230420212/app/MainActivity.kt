@@ -1,11 +1,15 @@
 package com.bc230420212.app
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.core.content.ContextCompat
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -48,6 +52,20 @@ class MainActivity : ComponentActivity() {
             e.printStackTrace()
         }
     }
+    
+    // Notification permission launcher (for Android 13+)
+    private val notificationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            android.util.Log.d("MainActivity", "Notification permission granted")
+            // Subscribe to notifications after permission is granted
+            subscribeToNotifications()
+            getFCMToken()
+        } else {
+            android.util.Log.w("MainActivity", "Notification permission denied")
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,8 +74,11 @@ class MainActivity : ComponentActivity() {
         // Initialize Cloudinary
         CloudinaryHelper.init(this)
         
-        // Subscribe to FCM topic for receiving notifications
-        subscribeToNotifications()
+        // Request notification permission for Android 13+ (API 33+)
+        requestNotificationPermission()
+        
+        // Get FCM token for debugging
+        getFCMToken()
         
         setContent {
             AndroidBasedCrowdsourcedDisasterAlertSafetyAppTheme {
@@ -93,6 +114,35 @@ class MainActivity : ComponentActivity() {
     }
     
     /**
+     * Request notification permission (Android 13+)
+     * Only asks if permission is not already granted
+     */
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // Android 13+ requires runtime permission for notifications
+            when {
+                ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED -> {
+                    // Permission already granted
+                    android.util.Log.d("MainActivity", "Notification permission already granted")
+                    subscribeToNotifications()
+                }
+                else -> {
+                    // Request permission
+                    android.util.Log.d("MainActivity", "Requesting notification permission")
+                    notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+        } else {
+            // Android 12 and below don't need runtime permission
+            android.util.Log.d("MainActivity", "Android version < 13, no permission needed")
+            subscribeToNotifications()
+        }
+    }
+    
+    /**
      * Subscribe to FCM topic to receive push notifications
      * All users subscribe to "allUsers" topic to receive notifications about new reports
      */
@@ -100,13 +150,31 @@ class MainActivity : ComponentActivity() {
         FirebaseMessaging.getInstance().subscribeToTopic("allUsers")
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    android.util.Log.d("FCM", "Subscribed to notifications topic")
+                    android.util.Log.d("FCM", "✅ Successfully subscribed to 'allUsers' topic")
                 } else {
                     task.exception?.let {
-                        android.util.Log.e("FCM", "Failed to subscribe to notifications topic", it)
+                        android.util.Log.e("FCM", "❌ Failed to subscribe to notifications topic", it)
                     }
                 }
             }
+    }
+    
+    /**
+     * Get FCM token for debugging
+     * This helps verify FCM is working correctly
+     */
+    private fun getFCMToken() {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                android.util.Log.e("FCM", "❌ Failed to get FCM token", task.exception)
+                return@addOnCompleteListener
+            }
+            
+            // Get new FCM registration token
+            val token = task.result
+            android.util.Log.d("FCM", "✅ FCM Token: $token")
+            android.util.Log.d("FCM", "📱 Use this token to send test notifications from Firebase Console")
+        }
     }
 
     /**

@@ -16,3 +16,4 @@ enum class DisasterType(val displayName: String) {
     OTHER("Other")
 }
 
+

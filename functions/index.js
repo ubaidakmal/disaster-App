@@ -39,7 +39,7 @@ exports.sendReportNotification = functions.firestore
             const reportId = context.params.reportId;
 
             // Get disaster type display name
-            const disasterType = report.disasterType || 'Disaster';
+            const disasterType = report.disasterType || 'OTHER';
             const disasterTypeNames = {
                 'FLOOD': 'Flood',
                 'FIRE': 'Fire',
@@ -52,6 +52,8 @@ exports.sendReportNotification = functions.firestore
             const disasterTypeName = disasterTypeNames[disasterType] || 'Disaster';
 
             // Prepare notification message
+            // Title: "New Disaster Report"
+            // Body: "{DisasterType} reported near your location" (e.g., "Fire reported near your location")
             const notification = {
                 title: 'New Disaster Report',
                 body: `${disasterTypeName} reported near your location`,
@@ -77,8 +79,17 @@ exports.sendReportNotification = functions.firestore
                     priority: 'high',
                     notification: {
                         sound: 'default',
-                        channelId: 'disaster_alert_channel',
-                        priority: 'high'
+                        channelId: 'disaster_alert_channel', // Must match Android app channel ID
+                        priority: 'high',
+                        clickAction: 'FLUTTER_NOTIFICATION_CLICK' // Opens app when tapped
+                    }
+                },
+                apns: {
+                    payload: {
+                        aps: {
+                            sound: 'default',
+                            badge: 1
+                        }
                     }
                 }
             };
