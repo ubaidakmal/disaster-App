@@ -165,13 +165,13 @@ fun LoginScreen(
         )
 
         // Google Sign In Button
-        AppButton(
-            text = "Sign in with Google",
-            onClick = onGoogleSignIn,
-            enabled = !uiState.isLoading,
-            isSecondary = true,
-            modifier = Modifier.padding(bottom = 24.dp)
-        )
+//        AppButton(
+//            text = "Sign in with Google",
+//            onClick = onGoogleSignIn,
+//            enabled = !uiState.isLoading,
+//            isSecondary = true,
+//            modifier = Modifier.padding(bottom = 24.dp)
+//        )
 
         // Register Link
         Row(
