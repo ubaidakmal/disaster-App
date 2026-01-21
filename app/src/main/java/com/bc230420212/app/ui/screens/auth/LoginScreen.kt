@@ -1,12 +1,19 @@
 package com.bc230420212.app.ui.screens.auth
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -14,8 +21,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bc230420212.app.ui.components.AppButton
 import com.bc230420212.app.ui.components.AppTextField
-import com.bc230420212.app.ui.theme.PrimaryColor
-import com.bc230420212.app.ui.theme.TextPrimary
+import com.bc230420212.app.ui.theme.*
 import com.bc230420212.app.ui.viewmodel.AuthViewModel
 
 /**
@@ -72,97 +78,150 @@ fun LoginScreen(
         }
     }
 
-    // Column is a layout that arranges items vertically (top to bottom)
-    // fillMaxSize() - takes full screen width and height
-    // padding(24.dp) - adds 24dp space around all edges
-    // verticalScroll - allows scrolling if content is too long
-    // CenterHorizontally - centers all items horizontally
-    // Center - centers all items vertically
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp)
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        // App Title
-        Text(
-            text = "Disaster Alert",
-            fontSize = 32.sp,
-            fontWeight = FontWeight.Bold,
-            color = PrimaryColor,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        
-        Text(
-            text = "Stay Safe, Stay Informed",
-            fontSize = 16.sp,
-            color = TextPrimary,
-            modifier = Modifier.padding(bottom = 48.dp)
-        )
-
-        // Email Field
-        AppTextField(
-            value = email,
-            onValueChange = { 
-                email = it
-                emailError = false
-                viewModel.clearError()
-            },
-            label = "Email",
-            keyboardType = androidx.compose.ui.text.input.KeyboardType.Email,
-            isError = emailError,
-            errorMessage = if (emailError) uiState.errorMessage ?: "" else "",
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
-        // Password Field
-        AppTextField(
-            value = password,
-            onValueChange = { 
-                password = it
-                passwordError = false
-                viewModel.clearError()
-            },
-            label = "Password",
-            isPassword = true,
-            isError = passwordError,
-            errorMessage = if (passwordError) uiState.errorMessage ?: "" else "",
-            modifier = Modifier.padding(bottom = 24.dp)
-        )
-
-        // Error Message
-        if (uiState.errorMessage != null && !emailError && !passwordError) {
-            Text(
-                text = uiState.errorMessage!!,
-                color = com.bc230420212.app.ui.theme.ErrorColor,
-                fontSize = 14.sp,
-                modifier = Modifier.padding(bottom = 16.dp)
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        BackgroundColor,
+                        SurfaceColor
+                    )
+                )
             )
-        }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Spacer(modifier = Modifier.height(40.dp))
+            
+            // Logo/Icon Section with Gradient
+            Box(
+                modifier = Modifier
+                    .size(100.dp)
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(
+                        brush = Brush.linearGradient(
+                            colors = listOf(GradientStart, GradientEnd)
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Lock,
+                    contentDescription = "App Icon",
+                    modifier = Modifier.size(48.dp),
+                    tint = TextOnPrimary
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(32.dp))
+            
+            // App Title
+            Text(
+                text = "Welcome Back",
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
+                color = TextPrimary,
+                textAlign = TextAlign.Center
+            )
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            Text(
+                text = "Sign in to continue",
+                fontSize = 16.sp,
+                color = TextSecondary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(bottom = 48.dp)
+            )
 
-        // Login Button
-        // When clicked, validates inputs and calls ViewModel to sign in
-        AppButton(
-            text = "Login",
-            onClick = {
-                // Validation: Check if email or password is empty
-                // If empty, don't do anything (return early)
-                if (email.isBlank() || password.isBlank()) {
-                    return@AppButton  // Exit function early
+            // Email Field
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = SurfaceColor),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                AppTextField(
+                    value = email,
+                    onValueChange = { 
+                        email = it
+                        emailError = false
+                        viewModel.clearError()
+                    },
+                    label = "Email Address",
+                    keyboardType = androidx.compose.ui.text.input.KeyboardType.Email,
+                    isError = emailError,
+                    errorMessage = if (emailError) uiState.errorMessage ?: "" else "",
+                    modifier = Modifier.padding(horizontal = 4.dp)
+                )
+            }
+
+            // Password Field
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 24.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = SurfaceColor),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                AppTextField(
+                    value = password,
+                    onValueChange = { 
+                        password = it
+                        passwordError = false
+                        viewModel.clearError()
+                    },
+                    label = "Password",
+                    isPassword = true,
+                    isError = passwordError,
+                    errorMessage = if (passwordError) uiState.errorMessage ?: "" else "",
+                    modifier = Modifier.padding(horizontal = 4.dp)
+                )
+            }
+
+            // Error Message
+            if (uiState.errorMessage != null && !emailError && !passwordError) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = ErrorColor.copy(alpha = 0.1f)
+                    )
+                ) {
+                    Text(
+                        text = uiState.errorMessage!!,
+                        color = ErrorColor,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(16.dp),
+                        textAlign = TextAlign.Center
+                    )
                 }
-                // Call ViewModel function to sign in with Firebase
-                // trim() removes spaces from start and end
-                viewModel.signInWithEmail(email.trim(), password)
-            },
-            // Button is enabled only if:
-            // 1. Not currently loading (!uiState.isLoading)
-            // 2. Email is not empty (email.isNotBlank())
-            // 3. Password is not empty (password.isNotBlank())
-            enabled = !uiState.isLoading && email.isNotBlank() && password.isNotBlank(),
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+            }
+
+            // Login Button
+            AppButton(
+                text = "Sign In",
+                onClick = {
+                    if (email.isBlank() || password.isBlank()) {
+                        return@AppButton
+                    }
+                    viewModel.signInWithEmail(email.trim(), password)
+                },
+                enabled = !uiState.isLoading && email.isNotBlank() && password.isNotBlank(),
+                modifier = Modifier.padding(bottom = 24.dp)
+            )
 
         // Google Sign In Button
 //        AppButton(
@@ -173,32 +232,37 @@ fun LoginScreen(
 //            modifier = Modifier.padding(bottom = 24.dp)
 //        )
 
-        // Register Link
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Don't have an account? ",
-                fontSize = 14.sp,
-                color = TextPrimary
-            )
-            TextButton(onClick = onNavigateToRegister) {
+            // Register Link
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
-                    text = "Register",
+                    text = "New to Disaster Alert? ",
+                    fontSize = 14.sp,
+                    color = TextSecondary
+                )
+                TextButton(onClick = onNavigateToRegister) {
+                    Text(
+                        text = "Create Account",
+                        color = PrimaryColor,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp
+                    )
+                }
+            }
+
+            // Loading Indicator
+            if (uiState.isLoading) {
+                Spacer(modifier = Modifier.height(24.dp))
+                CircularProgressIndicator(
                     color = PrimaryColor,
-                    fontWeight = FontWeight.Bold
+                    strokeWidth = 3.dp
                 )
             }
-        }
-
-        // Loading Indicator
-        if (uiState.isLoading) {
-            CircularProgressIndicator(
-                modifier = Modifier.padding(top = 16.dp),
-                color = PrimaryColor
-            )
+            
+            Spacer(modifier = Modifier.height(40.dp))
         }
     }
 }

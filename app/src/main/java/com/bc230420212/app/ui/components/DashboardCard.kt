@@ -1,5 +1,6 @@
 package com.bc230420212.app.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -10,13 +11,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.bc230420212.app.ui.theme.PrimaryColor
-import com.bc230420212.app.ui.theme.SurfaceColor
-import com.bc230420212.app.ui.theme.TextPrimary
+import com.bc230420212.app.ui.theme.*
 
 /**
  * REUSABLE DASHBOARD CARD COMPONENT
@@ -34,46 +36,77 @@ fun DashboardCard(
     title: String,
     icon: ImageVector? = null,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    iconColor: androidx.compose.ui.graphics.Color = PrimaryColor
 ) {
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(120.dp)
+            .height(140.dp)
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = SurfaceColor
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 4.dp
+            defaultElevation = 6.dp
         )
     ) {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            // Icon (if provided)
-            if (icon != null) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = title,
-                    modifier = Modifier.size(40.dp),
-                    tint = PrimaryColor
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            SurfaceColor,
+                            BackgroundColor
+                        )
+                    )
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                // Icon with gradient background
+                if (icon != null) {
+                    Box(
+                        modifier = Modifier
+                            .size(56.dp)
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(
+                                        iconColor.copy(alpha = 0.2f),
+                                        iconColor.copy(alpha = 0.1f)
+                                    )
+                                )
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = title,
+                            modifier = Modifier.size(32.dp),
+                            tint = iconColor
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+                
+                // Title
+                Text(
+                    text = title,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = TextPrimary,
+                    textAlign = TextAlign.Center,
+                    maxLines = 2
+                )
             }
-            
-            // Title
-            Text(
-                text = title,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = TextPrimary
-            )
         }
     }
 }

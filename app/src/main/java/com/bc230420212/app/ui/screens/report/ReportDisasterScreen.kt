@@ -9,6 +9,7 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import coil.compose.rememberAsyncImagePainter
@@ -39,10 +41,7 @@ import com.bc230420212.app.data.model.DisasterType
 import com.bc230420212.app.ui.components.AppButton
 import com.bc230420212.app.ui.components.AppDropdown
 import com.bc230420212.app.ui.components.AppTextArea
-import com.bc230420212.app.ui.theme.PrimaryColor
-import com.bc230420212.app.ui.theme.TextOnPrimary
-import com.bc230420212.app.ui.theme.TextPrimary
-import com.bc230420212.app.ui.theme.TextSecondary
+import com.bc230420212.app.ui.theme.*
 import com.bc230420212.app.ui.viewmodel.ReportViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
@@ -158,14 +157,19 @@ fun ReportDisasterScreen(
             )
         }
     ) { paddingValues ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .padding(24.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .background(BackgroundColor)
         ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(24.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
             // Disaster Type Dropdown
             Text(
                 text = "Disaster Type *",
@@ -219,9 +223,11 @@ fun ReportDisasterScreen(
             // Location Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = com.bc230420212.app.ui.theme.SurfaceColor
-                )
+                    containerColor = SurfaceColor
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
@@ -298,9 +304,11 @@ fun ReportDisasterScreen(
             
             Card(
                 modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = com.bc230420212.app.ui.theme.SurfaceColor
-                )
+                    containerColor = SurfaceColor
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
@@ -422,6 +430,7 @@ fun ReportDisasterScreen(
                         .padding(16.dp),
                     color = PrimaryColor
                 )
+            }
             }
         }
     }

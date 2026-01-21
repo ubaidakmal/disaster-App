@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -18,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -83,79 +85,102 @@ fun ProfileScreen(
             )
         }
     ) { paddingValues ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
+                .background(BackgroundColor)
         ) {
-            // Profile Header
-            Card(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = PrimaryColor.copy(alpha = 0.1f)
-                )
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .verticalScroll(rememberScrollState())
             ) {
-                Row(
+                // Profile Header with Gradient
+                Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(20.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                        .padding(16.dp),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = SurfaceColor
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                 ) {
-                    // Profile Picture Placeholder
                     Box(
                         modifier = Modifier
-                            .size(64.dp)
-                            .clip(CircleShape)
-                            .background(PrimaryColor),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = currentUser?.displayName?.take(1)?.uppercase() ?: "U",
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = TextOnPrimary
-                        )
-                    }
-                    
-                    Spacer(modifier = Modifier.width(16.dp))
-                    
-                    // User Info
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = currentUser?.displayName ?: "User",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = TextPrimary
-                        )
-                        Text(
-                            text = currentUser?.email ?: "",
-                            fontSize = 14.sp,
-                            color = TextSecondary,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
-                        // Role Badge
-                        Surface(
-                            color = if (uiState.userRole == com.bc230420212.app.data.model.UserRole.ADMIN) 
-                                AccentColor 
-                            else 
-                                SuccessColor,
-                            shape = MaterialTheme.shapes.small,
-                            modifier = Modifier.padding(top = 8.dp)
-                        ) {
-                            Text(
-                                text = uiState.userRole.name,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = TextOnPrimary,
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            .fillMaxWidth()
+                            .background(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(
+                                        PrimaryColor.copy(alpha = 0.15f),
+                                        GradientEnd.copy(alpha = 0.1f)
+                                    )
+                                )
                             )
+                            .padding(20.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // Profile Picture Placeholder with Gradient
+                            Box(
+                                modifier = Modifier
+                                    .size(72.dp)
+                                    .clip(CircleShape)
+                                    .background(
+                                        brush = Brush.linearGradient(
+                                            colors = listOf(GradientStart, GradientEnd)
+                                        )
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = currentUser?.displayName?.take(1)?.uppercase() ?: "U",
+                                    fontSize = 28.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = TextOnPrimary
+                                )
+                            }
+                            
+                            Spacer(modifier = Modifier.width(20.dp))
+                            
+                            // User Info
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = currentUser?.displayName ?: "User",
+                                    fontSize = 22.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = TextPrimary
+                                )
+                                Text(
+                                    text = currentUser?.email ?: "",
+                                    fontSize = 14.sp,
+                                    color = TextSecondary,
+                                    modifier = Modifier.padding(top = 6.dp)
+                                )
+                                // Role Badge
+                                Surface(
+                                    color = if (uiState.userRole == com.bc230420212.app.data.model.UserRole.ADMIN) 
+                                        AccentColor 
+                                    else 
+                                        SuccessColor,
+                                    shape = RoundedCornerShape(12.dp),
+                                    modifier = Modifier.padding(top = 10.dp)
+                                ) {
+                                    Text(
+                                        text = uiState.userRole.name,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = TextOnPrimary,
+                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                                    )
+                                }
+                            }
                         }
                     }
                 }
-            }
             
             Spacer(modifier = Modifier.height(8.dp))
             
@@ -260,6 +285,7 @@ fun ProfileScreen(
             )
             
             Spacer(modifier = Modifier.height(16.dp))
+            }
         }
     }
     

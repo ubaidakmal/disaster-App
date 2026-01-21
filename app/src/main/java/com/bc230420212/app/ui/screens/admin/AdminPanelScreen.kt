@@ -1,9 +1,11 @@
 package com.bc230420212.app.ui.screens.admin
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -17,6 +19,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -92,18 +96,23 @@ fun AdminPanelScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = AccentColor,
+                    containerColor = PrimaryColor,
                     titleContentColor = TextOnPrimary,
                     navigationIconContentColor = TextOnPrimary
                 )
             )
         }
     ) { paddingValues ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .background(BackgroundColor)
         ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
             // Success/Error Messages
             if (uiState.successMessage != null) {
                 Card(
@@ -158,39 +167,59 @@ fun AdminPanelScreen(
                 }
             }
             
-            // Header
+            // Header with Gradient
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = AccentColor.copy(alpha = 0.1f)
-                )
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = SurfaceColor
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                 ) {
-                    Text(
-                        text = "Pending Reports",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextPrimary
-                    )
-                    Text(
-                        text = "Review and update report status",
-                        fontSize = 12.sp,
-                        color = TextSecondary,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                    Text(
-                        text = "Total: ${uiState.pendingReports.size}",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = AccentColor,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(
+                                        PrimaryColor.copy(alpha = 0.1f),
+                                        GradientEnd.copy(alpha = 0.05f)
+                                    )
+                                )
+                            )
+                            .padding(20.dp)
+                    ) {
+                        Column {
+                            Text(
+                                text = "Pending Reports",
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "Review and update report status",
+                                fontSize = 14.sp,
+                                color = TextSecondary
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Surface(
+                                shape = RoundedCornerShape(12.dp),
+                                color = PrimaryColor.copy(alpha = 0.15f)
+                            ) {
+                                Text(
+                                    text = "Total: ${uiState.pendingReports.size}",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = PrimaryColor,
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                                )
+                            }
+                        }
+                    }
                 }
-            }
             
             // Reports List
             when {
@@ -201,7 +230,10 @@ fun AdminPanelScreen(
                             .padding(16.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator(color = AccentColor)
+                        CircularProgressIndicator(
+                            color = PrimaryColor,
+                            strokeWidth = 3.dp
+                        )
                     }
                 }
                 
@@ -255,6 +287,7 @@ fun AdminPanelScreen(
                     }
                 }
             }
+            }
         }
     }
 }
@@ -263,17 +296,18 @@ fun AdminPanelScreen(
  * Admin Report Card with Status Update Buttons
  */
 @Composable
-private fun AdminReportCard(
+fun AdminReportCard(
     report: DisasterReport,
     onUpdateStatus: (ReportStatus) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = SurfaceColor
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 2.dp
+            defaultElevation = 4.dp
         )
     ) {
         Column(
@@ -296,14 +330,14 @@ private fun AdminReportCard(
                 )
                 Surface(
                     color = WarningColor,
-                    shape = MaterialTheme.shapes.small
+                    shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(
                         text = report.status.name,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = TextOnPrimary,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                     )
                 }
             }
@@ -352,12 +386,13 @@ private fun AdminReportCard(
             
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 // Verified Button
                 Button(
                     onClick = { onUpdateStatus(ReportStatus.VERIFIED) },
                     modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = SuccessColor
                     )
@@ -368,13 +403,14 @@ private fun AdminReportCard(
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Verify", fontSize = 12.sp)
+                    Text("Verify", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                 }
                 
                 // Resolved Button
                 Button(
                     onClick = { onUpdateStatus(ReportStatus.RESOLVED) },
                     modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = PrimaryColor
                     )
@@ -385,13 +421,14 @@ private fun AdminReportCard(
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Resolve", fontSize = 12.sp)
+                    Text("Resolve", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                 }
                 
                 // False Alarm Button
                 Button(
                     onClick = { onUpdateStatus(ReportStatus.FALSE_ALARM) },
                     modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = ErrorColor
                     )
@@ -402,7 +439,7 @@ private fun AdminReportCard(
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("False", fontSize = 12.sp)
+                    Text("False", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
         }

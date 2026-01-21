@@ -1,7 +1,9 @@
 package com.bc230420212.app.ui.screens.home
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -11,16 +13,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bc230420212.app.ui.components.AppButton
 import com.bc230420212.app.ui.components.DashboardCard
-import com.bc230420212.app.ui.theme.AccentColor
-import com.bc230420212.app.ui.theme.PrimaryColor
-import com.bc230420212.app.ui.theme.TextOnPrimary
-import com.bc230420212.app.ui.theme.TextPrimary
+import com.bc230420212.app.ui.theme.*
 import com.bc230420212.app.ui.viewmodel.AuthViewModel
 
 /**
@@ -64,7 +65,8 @@ fun HomeScreen(
                 title = { 
                     Text(
                         text = "Disaster Alert",
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
                     ) 
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -73,117 +75,168 @@ fun HomeScreen(
                 ),
                 actions = {
                     // User role badge
-                    Text(
-                        text = uiState.userRole.name,
+                    Surface(
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .align(Alignment.CenterVertically),
-                        color = TextOnPrimary,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium
-                    )
+                        shape = RoundedCornerShape(12.dp),
+                        color = TextOnPrimary.copy(alpha = 0.2f)
+                    ) {
+                        Text(
+                            text = uiState.userRole.name,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                            color = TextOnPrimary,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
                 }
             )
         }
     ) { paddingValues ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .background(BackgroundColor)
         ) {
-            // Welcome Section
-            Text(
-                text = "Welcome!",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = TextPrimary,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            
-            Text(
-                text = "Stay safe, stay informed",
-                fontSize = 14.sp,
-                color = com.bc230420212.app.ui.theme.TextSecondary,
-                modifier = Modifier.padding(bottom = 24.dp)
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .verticalScroll(rememberScrollState())
+                    .padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                // Welcome Section with Gradient
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = SurfaceColor
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(
+                                        GradientStart.copy(alpha = 0.1f),
+                                        GradientEnd.copy(alpha = 0.05f)
+                                    )
+                                )
+                            )
+                            .padding(24.dp)
+                    ) {
+                        Column {
+                            Text(
+                                text = "Welcome Back!",
+                                fontSize = 28.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary
+                            )
+                            
+                            Spacer(modifier = Modifier.height(8.dp))
+                            
+                            Text(
+                                text = "Stay informed, stay safe",
+                                fontSize = 16.sp,
+                                color = TextSecondary
+                            )
+                        }
+                    }
+                }
 
-            // Dashboard Cards - Main Features
-            // Report Disaster Card
-            DashboardCard(
-                title = "Report Disaster",
-                icon = Icons.Default.Warning,
-                onClick = onNavigateToReportDisaster,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            // View Reports (List) Card
-            DashboardCard(
-                title = "View Reports",
-                icon = Icons.Default.List,
-                onClick = onNavigateToViewReports,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            // Map View Card
-            DashboardCard(
-                title = "Map View",
-                icon = Icons.Default.LocationOn,
-                onClick = onNavigateToMapView,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            // SOS Card (Emergency)
-            DashboardCard(
-                title = "SOS Emergency",
-                icon = Icons.Default.Notifications,
-                onClick = onNavigateToSOS,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            // Profile/Settings Card
-            DashboardCard(
-                title = "Profile & Settings",
-                icon = Icons.Default.Settings,
-                onClick = onNavigateToProfile,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            // Admin Panel Card (Only for ADMIN users)
-            if (uiState.userRole == com.bc230420212.app.data.model.UserRole.ADMIN) {
-                HorizontalDivider(
-                    modifier = Modifier.padding(vertical = 8.dp),
-                    color = AccentColor.copy(alpha = 0.3f)
-                )
-                
+                // Main Features - 3 in a row
                 Text(
-                    text = "Admin Tools",
-                    fontSize = 16.sp,
+                    text = "Quick Actions",
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = AccentColor,
-                    modifier = Modifier.padding(vertical = 8.dp)
+                    color = TextPrimary,
+                    modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
                 )
                 
-                DashboardCard(
-                    title = "Admin Panel",
-                    icon = Icons.Default.Settings,
-                    onClick = onNavigateToAdminPanel,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
+                // Row 1: Report, View Reports, Map
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    DashboardCard(
+                        title = "Report",
+                        icon = Icons.Default.Warning,
+                        onClick = onNavigateToReportDisaster,
+                        modifier = Modifier.weight(1f),
+                        iconColor = AccentColor
+                    )
+                    
+                    DashboardCard(
+                        title = "View Reports",
+                        icon = Icons.Default.List,
+                        onClick = onNavigateToViewReports,
+                        modifier = Modifier.weight(1f),
+                        iconColor = PrimaryColor
+                    )
+                    
+                    DashboardCard(
+                        title = "Map View",
+                        icon = Icons.Default.LocationOn,
+                        onClick = onNavigateToMapView,
+                        modifier = Modifier.weight(1f),
+                        iconColor = SecondaryColor
+                    )
+                }
+                
+                // Row 2: SOS, Profile, (empty or admin)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    DashboardCard(
+                        title = "SOS Emergency",
+                        icon = Icons.Default.Notifications,
+                        onClick = onNavigateToSOS,
+                        modifier = Modifier.weight(1f),
+                        iconColor = ErrorColor
+                    )
+                    
+                    DashboardCard(
+                        title = "Profile",
+                        icon = Icons.Default.Settings,
+                        onClick = onNavigateToProfile,
+                        modifier = Modifier.weight(1f),
+                        iconColor = InfoColor
+                    )
+                    
+                    // Admin Panel Card (Only for ADMIN users)
+                    if (uiState.userRole == com.bc230420212.app.data.model.UserRole.ADMIN) {
+                        DashboardCard(
+                            title = "Admin",
+                            icon = Icons.Default.Settings,
+                            onClick = onNavigateToAdminPanel,
+                            modifier = Modifier.weight(1f),
+                            iconColor = WarningColor
+                        )
+                    } else {
+                        // Empty space to maintain layout
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
+                }
 
-            // Sign Out Button
-            Spacer(modifier = Modifier.height(16.dp))
-            AppButton(
-                text = "Sign Out",
-                onClick = {
-                    viewModel.signOut()
-                    onSignOut()
-                },
-                modifier = Modifier.padding(top = 8.dp)
-            )
+                // Sign Out Button
+                Spacer(modifier = Modifier.height(8.dp))
+                AppButton(
+                    text = "Sign Out",
+                    onClick = {
+                        viewModel.signOut()
+                        onSignOut()
+                    },
+                    isSecondary = true,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+                
+                Spacer(modifier = Modifier.height(16.dp))
+            }
         }
     }
 }

@@ -15,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -78,30 +79,44 @@ fun SOSScreen(
             )
         }
     ) { paddingValues ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            BackgroundColor,
+                            ErrorColor.copy(alpha = 0.05f)
+                        )
+                    )
+                )
         ) {
-            // Warning message
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = WarningColor.copy(alpha = 0.1f)
-                )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = "⚠️ Use this only in case of a real emergency!",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = WarningColor,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(16.dp)
-                )
-            }
+                // Warning message
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = WarningColor.copy(alpha = 0.15f)
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                ) {
+                    Text(
+                        text = "⚠️ Use this only in case of a real emergency!",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = WarningColor,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(20.dp)
+                    )
+                }
             
             Spacer(modifier = Modifier.height(16.dp))
             
@@ -126,12 +141,14 @@ fun SOSScreen(
             } else if (uiState.currentLocation != null) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = SuccessColor.copy(alpha = 0.1f)
-                    )
+                        containerColor = SuccessColor.copy(alpha = 0.15f)
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
                     Column(
-                        modifier = Modifier.padding(16.dp),
+                        modifier = Modifier.padding(20.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Row(
@@ -141,23 +158,23 @@ fun SOSScreen(
                                 imageVector = Icons.Default.LocationOn,
                                 contentDescription = "Location",
                                 tint = SuccessColor,
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.size(28.dp)
                             )
-                            Spacer(modifier = Modifier.width(8.dp))
+                            Spacer(modifier = Modifier.width(12.dp))
                             Text(
                                 text = "Live Location",
-                                fontSize = 16.sp,
+                                fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = SuccessColor
                             )
                         }
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(12.dp))
                         Text(
                             text = uiState.locationAddress.ifEmpty { 
                                 "Lat: ${String.format("%.6f", uiState.currentLocation!!.latitude)}, " +
                                 "Lng: ${String.format("%.6f", uiState.currentLocation!!.longitude)}"
                             },
-                            fontSize = 12.sp,
+                            fontSize = 13.sp,
                             color = TextSecondary,
                             textAlign = TextAlign.Center
                         )
@@ -166,28 +183,37 @@ fun SOSScreen(
             } else {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = TextSecondary.copy(alpha = 0.1f)
-                    )
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
                     Text(
                         text = "Location not available",
                         fontSize = 14.sp,
                         color = TextSecondary,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier.padding(20.dp)
                     )
                 }
             }
             
             Spacer(modifier = Modifier.weight(1f))
             
-            // Big SOS Button
+            // Big SOS Button with gradient
             Box(
                 modifier = Modifier
                     .size(200.dp)
                     .clip(CircleShape)
-                    .background(ErrorColor),
+                    .background(
+                        brush = Brush.radialGradient(
+                            colors = listOf(
+                                ErrorColor,
+                                ErrorColor.copy(alpha = 0.8f)
+                            )
+                        )
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 Column(
@@ -196,7 +222,7 @@ fun SOSScreen(
                 ) {
                     Text(
                         text = "SOS",
-                        fontSize = 48.sp,
+                        fontSize = 52.sp,
                         fontWeight = FontWeight.Bold,
                         color = TextOnPrimary
                     )
@@ -220,7 +246,8 @@ fun SOSScreen(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = ErrorColor
                 ),
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(20.dp),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 6.dp),
                 enabled = !uiState.isLoading && uiState.currentLocation != null
             ) {
                 if (uiState.isLoading) {
@@ -249,17 +276,19 @@ fun SOSScreen(
             if (uiState.successMessage != null) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = SuccessColor.copy(alpha = 0.1f)
-                    )
+                        containerColor = SuccessColor.copy(alpha = 0.15f)
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
                     Text(
                         text = uiState.successMessage!!,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.SemiBold,
                         color = SuccessColor,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier.padding(20.dp)
                     )
                 }
             }
@@ -267,17 +296,19 @@ fun SOSScreen(
             if (uiState.errorMessage != null) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = ErrorColor.copy(alpha = 0.1f)
-                    )
+                        containerColor = ErrorColor.copy(alpha = 0.15f)
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
                     Text(
                         text = uiState.errorMessage!!,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.SemiBold,
                         color = ErrorColor,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier.padding(20.dp)
                     )
                 }
             }
@@ -290,6 +321,7 @@ fun SOSScreen(
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 8.dp)
             )
+            }
         }
     }
 }
