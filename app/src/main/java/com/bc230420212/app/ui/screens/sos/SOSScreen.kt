@@ -99,23 +99,36 @@ fun SOSScreen(
                 verticalArrangement = Arrangement.spacedBy(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Warning message
+                // Warning message with Version 3 design
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(22.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = WarningColor.copy(alpha = 0.15f)
+                        containerColor = WarningColor.copy(alpha = 0.18f)
                     ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                 ) {
-                    Text(
-                        text = "⚠️ Use this only in case of a real emergency!",
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = WarningColor,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(20.dp)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(
+                                        WarningColor.copy(alpha = 0.2f),
+                                        WarningColor.copy(alpha = 0.1f)
+                                    )
+                                )
+                            )
+                            .padding(24.dp)
+                    ) {
+                        Text(
+                            text = "⚠️ Emergency Use Only",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = WarningColor,
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -141,76 +154,91 @@ fun SOSScreen(
             } else if (uiState.currentLocation != null) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(22.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = SuccessColor.copy(alpha = 0.15f)
+                        containerColor = SuccessColor.copy(alpha = 0.18f)
                     ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                 ) {
-                    Column(
-                        modifier = Modifier.padding(20.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.LocationOn,
-                                contentDescription = "Location",
-                                tint = SuccessColor,
-                                modifier = Modifier.size(28.dp)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(
+                                        SuccessColor.copy(alpha = 0.2f),
+                                        SuccessColor.copy(alpha = 0.1f)
+                                    )
+                                )
                             )
-                            Spacer(modifier = Modifier.width(12.dp))
+                            .padding(24.dp)
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.LocationOn,
+                                    contentDescription = "Location",
+                                    tint = SuccessColor,
+                                    modifier = Modifier.size(32.dp)
+                                )
+                                Spacer(modifier = Modifier.width(14.dp))
+                                Text(
+                                    text = "Location Active",
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = SuccessColor
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(14.dp))
                             Text(
-                                text = "Live Location",
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = SuccessColor
+                                text = uiState.locationAddress.ifEmpty { 
+                                    "Lat: ${String.format("%.6f", uiState.currentLocation!!.latitude)}, " +
+                                    "Lng: ${String.format("%.6f", uiState.currentLocation!!.longitude)}"
+                                },
+                                fontSize = 14.sp,
+                                color = TextSecondary,
+                                textAlign = TextAlign.Center
                             )
                         }
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text(
-                            text = uiState.locationAddress.ifEmpty { 
-                                "Lat: ${String.format("%.6f", uiState.currentLocation!!.latitude)}, " +
-                                "Lng: ${String.format("%.6f", uiState.currentLocation!!.longitude)}"
-                            },
-                            fontSize = 13.sp,
-                            color = TextSecondary,
-                            textAlign = TextAlign.Center
-                        )
                     }
                 }
             } else {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(22.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = TextSecondary.copy(alpha = 0.1f)
+                        containerColor = TextSecondary.copy(alpha = 0.12f)
                     ),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
                     Text(
                         text = "Location not available",
-                        fontSize = 14.sp,
+                        fontSize = 15.sp,
                         color = TextSecondary,
+                        fontWeight = FontWeight.Medium,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(20.dp)
+                        modifier = Modifier.padding(24.dp)
                     )
                 }
             }
             
             Spacer(modifier = Modifier.weight(1f))
             
-            // Big SOS Button with gradient
+            // Big SOS Button with Version 3 gradient
             Box(
                 modifier = Modifier
-                    .size(200.dp)
+                    .size(220.dp)
                     .clip(CircleShape)
                     .background(
                         brush = Brush.radialGradient(
                             colors = listOf(
                                 ErrorColor,
-                                ErrorColor.copy(alpha = 0.8f)
+                                AccentColor,
+                                ErrorColor.copy(alpha = 0.85f)
                             )
                         )
                     ),
@@ -222,32 +250,33 @@ fun SOSScreen(
                 ) {
                     Text(
                         text = "SOS",
-                        fontSize = 52.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontSize = 58.sp,
+                        fontWeight = FontWeight.ExtraBold,
                         color = TextOnPrimary
                     )
                     Text(
                         text = "EMERGENCY",
-                        fontSize = 16.sp,
+                        fontSize = 17.sp,
                         fontWeight = FontWeight.Bold,
-                        color = TextOnPrimary
+                        color = TextOnPrimary,
+                        letterSpacing = 2.sp
                     )
                 }
             }
             
-            // SOS Button (clickable)
+            // SOS Button (clickable) with Version 3 design
             Button(
                 onClick = {
                     viewModel.sendSOSAlert(context)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(80.dp),
+                    .height(85.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = ErrorColor
                 ),
-                shape = RoundedCornerShape(20.dp),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 6.dp),
+                shape = RoundedCornerShape(22.dp),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp),
                 enabled = !uiState.isLoading && uiState.currentLocation != null
             ) {
                 if (uiState.isLoading) {
@@ -272,54 +301,81 @@ fun SOSScreen(
                 }
             }
             
-            // Success/Error Messages
+            // Success/Error Messages with Version 3 design
             if (uiState.successMessage != null) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(22.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = SuccessColor.copy(alpha = 0.15f)
+                        containerColor = SuccessColor.copy(alpha = 0.18f)
                     ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                 ) {
-                    Text(
-                        text = uiState.successMessage!!,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = SuccessColor,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(20.dp)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(
+                                        SuccessColor.copy(alpha = 0.2f),
+                                        SuccessColor.copy(alpha = 0.1f)
+                                    )
+                                )
+                            )
+                            .padding(24.dp)
+                    ) {
+                        Text(
+                            text = uiState.successMessage!!,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = SuccessColor,
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
             }
             
             if (uiState.errorMessage != null) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(22.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = ErrorColor.copy(alpha = 0.15f)
+                        containerColor = ErrorColor.copy(alpha = 0.18f)
                     ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                 ) {
-                    Text(
-                        text = uiState.errorMessage!!,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = ErrorColor,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(20.dp)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(
+                                        ErrorColor.copy(alpha = 0.2f),
+                                        ErrorColor.copy(alpha = 0.1f)
+                                    )
+                                )
+                            )
+                            .padding(24.dp)
+                    ) {
+                        Text(
+                            text = uiState.errorMessage!!,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = ErrorColor,
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
             }
             
             // Info text
             Text(
                 text = "This will send your location to emergency services and saved contacts",
-                fontSize = 12.sp,
+                fontSize = 13.sp,
                 color = TextSecondary,
+                fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 8.dp)
+                modifier = Modifier.padding(top = 10.dp)
             )
             }
         }

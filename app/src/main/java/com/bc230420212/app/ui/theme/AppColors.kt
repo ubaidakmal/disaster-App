@@ -3,55 +3,56 @@ package com.bc230420212.app.ui.theme
 import androidx.compose.ui.graphics.Color
 
 /**
- * App-wide color definitions - Version 2.0
- * Modern, vibrant color palette for enhanced user experience
+ * App-wide color definitions - Version 3.0
+ * Fresh, modern color palette with warm tones and vibrant accents
  */
 
-// Primary Colors - Deep Purple/Indigo
-val PrimaryColor = Color(0xFF6366F1) // Indigo
-val PrimaryDarkColor = Color(0xFF4F46E5)
-val PrimaryLightColor = Color(0xFF818CF8)
+// Primary Colors - Deep Teal/Cyan
+val PrimaryColor = Color(0xFF0D9488) // Teal
+val PrimaryDarkColor = Color(0xFF0F766E)
+val PrimaryLightColor = Color(0xFF5EEAD4)
 
-// Secondary Colors - Emerald Green
-val SecondaryColor = Color(0xFF10B981) // Emerald
-val SecondaryDarkColor = Color(0xFF059669)
-val SecondaryLightColor = Color(0xFF34D399)
+// Secondary Colors - Coral/Orange
+val SecondaryColor = Color(0xFFF97316) // Orange
+val SecondaryDarkColor = Color(0xFFEA580C)
+val SecondaryLightColor = Color(0xFFFB923C)
 
-// Accent Colors - Vibrant Orange/Red for alerts
-val AccentColor = Color(0xFFEF4444) // Red
-val AccentDarkColor = Color(0xFFDC2626)
+// Accent Colors - Vibrant Red for alerts
+val AccentColor = Color(0xFFDC2626) // Red
+val AccentDarkColor = Color(0xFFB91C1C)
 val AccentLightColor = Color(0xFFF87171)
 
 // Status Colors
-val SuccessColor = Color(0xFF10B981) // Emerald Green
-val WarningColor = Color(0xFFF59E0B) // Amber
-val ErrorColor = Color(0xFFEF4444) // Red
-val InfoColor = Color(0xFF3B82F6) // Blue
+val SuccessColor = Color(0xFF16A34A) // Green
+val WarningColor = Color(0xFFEAB308) // Yellow
+val ErrorColor = Color(0xFFDC2626) // Red
+val InfoColor = Color(0xFF0284C7) // Sky Blue
 
-// Background Colors - Soft, modern grays
-val BackgroundColor = Color(0xFFF8FAFC) // Very Light Gray
-val SurfaceColor = Color(0xFFFFFFFF) // White
-val SurfaceDarkColor = Color(0xFFF1F5F9) // Light Slate
+// Background Colors - Warm, soft tones
+val BackgroundColor = Color(0xFFFEFEFE) // Off White
+val SurfaceColor = Color(0xFFFFFFFF) // Pure White
+val SurfaceDarkColor = Color(0xFFF5F5F5) // Light Gray
 
 // Text Colors
-val TextPrimary = Color(0xFF1E293B) // Slate 800
-val TextSecondary = Color(0xFF64748B) // Slate 500
-val TextDisabled = Color(0xFFCBD5E1) // Slate 300
+val TextPrimary = Color(0xFF18181B) // Zinc 900
+val TextSecondary = Color(0xFF71717A) // Zinc 500
+val TextDisabled = Color(0xFFD4D4D8) // Zinc 300
 val TextOnPrimary = Color(0xFFFFFFFF) // White
 
-// Disaster Type Colors - Updated palette
-val FloodColor = Color(0xFF3B82F6) // Blue
-val EarthquakeColor = Color(0xFFF59E0B) // Amber
-val FireColor = Color(0xFFEF4444) // Red
-val AccidentColor = Color(0xFF8B5CF6) // Purple
-val StormColor = Color(0xFF06B6D4) // Cyan
+// Disaster Type Colors - Vibrant palette
+val FloodColor = Color(0xFF0284C7) // Sky Blue
+val EarthquakeColor = Color(0xFFF97316) // Orange
+val FireColor = Color(0xFFDC2626) // Red
+val AccidentColor = Color(0xFF9333EA) // Purple
+val StormColor = Color(0xFF0891B2) // Cyan
 val LandslideColor = Color(0xFF78716C) // Stone
 val OtherDisasterColor = Color(0xFF64748B) // Slate
 
 // Divider
-val DividerColor = Color(0xFFE2E8F0) // Slate 200
+val DividerColor = Color(0xFFE4E4E7) // Zinc 200
 
-// Gradient Colors
-val GradientStart = Color(0xFF6366F1)
-val GradientEnd = Color(0xFF8B5CF6)
+// Gradient Colors - Version 3
+val GradientStart = Color(0xFF0D9488) // Teal
+val GradientEnd = Color(0xFF0284C7) // Sky Blue
+val GradientAccent = Color(0xFFF97316) // Orange
 

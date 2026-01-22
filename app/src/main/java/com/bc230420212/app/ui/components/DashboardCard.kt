@@ -3,6 +3,7 @@ package com.bc230420212.app.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -42,14 +43,14 @@ fun DashboardCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(140.dp)
+            .height(150.dp)
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(
             containerColor = SurfaceColor
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 6.dp
+            defaultElevation = 8.dp
         )
     ) {
         Box(
@@ -58,8 +59,9 @@ fun DashboardCard(
                 .background(
                     brush = Brush.verticalGradient(
                         colors = listOf(
+                            iconColor.copy(alpha = 0.08f),
                             SurfaceColor,
-                            BackgroundColor
+                            BackgroundColor.copy(alpha = 0.5f)
                         )
                     )
                 )
@@ -67,20 +69,20 @@ fun DashboardCard(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(20.dp),
+                    .padding(22.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                // Icon with gradient background
+                // Icon with circular gradient background
                 if (icon != null) {
                     Box(
                         modifier = Modifier
-                            .size(56.dp)
-                            .clip(RoundedCornerShape(14.dp))
+                            .size(60.dp)
+                            .clip(CircleShape)
                             .background(
-                                brush = Brush.linearGradient(
+                                brush = Brush.radialGradient(
                                     colors = listOf(
-                                        iconColor.copy(alpha = 0.2f),
+                                        iconColor.copy(alpha = 0.25f),
                                         iconColor.copy(alpha = 0.1f)
                                     )
                                 )
@@ -90,21 +92,22 @@ fun DashboardCard(
                         Icon(
                             imageVector = icon,
                             contentDescription = title,
-                            modifier = Modifier.size(32.dp),
+                            modifier = Modifier.size(34.dp),
                             tint = iconColor
                         )
                     }
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(14.dp))
                 }
                 
                 // Title
                 Text(
                     text = title,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
                     color = TextPrimary,
                     textAlign = TextAlign.Center,
-                    maxLines = 2
+                    maxLines = 2,
+                    lineHeight = 18.sp
                 )
             }
         }

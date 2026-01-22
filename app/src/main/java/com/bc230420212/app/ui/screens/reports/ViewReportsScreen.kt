@@ -81,16 +81,16 @@ fun ViewReportsScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
-                // Filter Tabs (Active/Past) with modern design
+                // Filter Tabs (Active/Past) with Version 3 design
                 var selectedTab by remember { mutableStateOf(0) }
                 
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
-                    shape = RoundedCornerShape(16.dp),
+                        .padding(18.dp),
+                    shape = RoundedCornerShape(20.dp),
                     colors = CardDefaults.cardColors(containerColor = SurfaceColor),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                 ) {
                     TabRow(
                         selectedTabIndex = selectedTab,
@@ -101,8 +101,10 @@ fun ViewReportsScreen(
                             onClick = { selectedTab = 0 },
                             text = { 
                                 Text(
-                                    "Active",
-                                    fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal
+                                    "Active Reports",
+                                    fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Medium,
+                                    fontSize = 14.sp,
+                                    color = if (selectedTab == 0) PrimaryColor else TextSecondary
                                 ) 
                             }
                         )
@@ -111,8 +113,10 @@ fun ViewReportsScreen(
                             onClick = { selectedTab = 1 },
                             text = { 
                                 Text(
-                                    "Past",
-                                    fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal
+                                    "Past Reports",
+                                    fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Medium,
+                                    fontSize = 14.sp,
+                                    color = if (selectedTab == 1) PrimaryColor else TextSecondary
                                 ) 
                             }
                         )
@@ -130,7 +134,8 @@ fun ViewReportsScreen(
                     ) {
                         CircularProgressIndicator(
                             color = PrimaryColor,
-                            strokeWidth = 3.dp
+                            strokeWidth = 4.dp,
+                            modifier = Modifier.size(40.dp)
                         )
                     }
                 }
@@ -143,36 +148,47 @@ fun ViewReportsScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(20.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = ErrorColor.copy(alpha = 0.1f)
-                            )
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(24.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(22.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = ErrorColor.copy(alpha = 0.12f)
+                                ),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                             ) {
-                                Text(
-                                    text = "Error",
-                                    fontSize = 20.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = ErrorColor,
-                                    modifier = Modifier.padding(bottom = 12.dp)
-                                )
-                                Text(
-                                    text = uiState.errorMessage!!,
-                                    fontSize = 14.sp,
-                                    color = TextSecondary,
-                                    modifier = Modifier.padding(bottom = 20.dp)
-                                )
-                                com.bc230420212.app.ui.components.AppButton(
-                                    text = "Retry",
-                                    onClick = { viewModel.loadReports() }
-                                )
+                                Column(
+                                    modifier = Modifier.padding(28.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = "Oops!",
+                                        fontSize = 24.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = ErrorColor,
+                                        modifier = Modifier.padding(bottom = 14.dp)
+                                    )
+                                    Text(
+                                        text = uiState.errorMessage!!,
+                                        fontSize = 15.sp,
+                                        color = TextSecondary,
+                                        modifier = Modifier.padding(bottom = 24.dp),
+                                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                    )
+                                    Button(
+                                        onClick = { viewModel.loadReports() },
+                                        shape = RoundedCornerShape(14.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = ErrorColor
+                                        )
+                                    ) {
+                                        Text(
+                                            text = "Try Again",
+                                            fontSize = 15.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                }
                             }
-                        }
                     }
                 }
                 
@@ -200,30 +216,43 @@ fun ViewReportsScreen(
                         ) {
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(20.dp),
+                                shape = RoundedCornerShape(22.dp),
                                 colors = CardDefaults.cardColors(containerColor = SurfaceColor),
-                                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                             ) {
-                                Column(
-                                    modifier = Modifier.padding(32.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(
+                                            brush = Brush.linearGradient(
+                                                colors = listOf(
+                                                    PrimaryColor.copy(alpha = 0.08f),
+                                                    BackgroundColor
+                                                )
+                                            )
+                                        )
+                                        .padding(36.dp)
                                 ) {
-                                    Text(
-                                        text = if (selectedTab == 0) "No Active Reports" else "No Past Reports",
-                                        fontSize = 20.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = TextPrimary,
-                                        modifier = Modifier.padding(bottom = 12.dp)
-                                    )
-                                    Text(
-                                        text = if (selectedTab == 0) 
-                                            "There are no active disaster reports at the moment." 
-                                        else 
-                                            "There are no past disaster reports.",
-                                        fontSize = 14.sp,
-                                        color = TextSecondary,
-                                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                                    )
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Text(
+                                            text = if (selectedTab == 0) "No Active Reports" else "No Past Reports",
+                                            fontSize = 22.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = TextPrimary,
+                                            modifier = Modifier.padding(bottom = 14.dp)
+                                        )
+                                        Text(
+                                            text = if (selectedTab == 0) 
+                                                "There are no active disaster reports at the moment." 
+                                            else 
+                                                "There are no past disaster reports.",
+                                            fontSize = 15.sp,
+                                            color = TextSecondary,
+                                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                        )
+                                    }
                                 }
                             }
                         }

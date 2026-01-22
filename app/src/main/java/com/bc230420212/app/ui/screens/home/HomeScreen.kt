@@ -1,6 +1,7 @@
 package com.bc230420212.app.ui.screens.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -107,14 +108,14 @@ fun HomeScreen(
                     .padding(20.dp),
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                // Welcome Section with Gradient
+                // Welcome Section with Version 3 design
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(20.dp),
+                    shape = RoundedCornerShape(24.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = SurfaceColor
                     ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                 ) {
                     Box(
                         modifier = Modifier
@@ -122,27 +123,29 @@ fun HomeScreen(
                             .background(
                                 brush = Brush.linearGradient(
                                     colors = listOf(
-                                        GradientStart.copy(alpha = 0.1f),
-                                        GradientEnd.copy(alpha = 0.05f)
+                                        PrimaryColor.copy(alpha = 0.15f),
+                                        SecondaryColor.copy(alpha = 0.08f),
+                                        GradientAccent.copy(alpha = 0.05f)
                                     )
                                 )
                             )
-                            .padding(24.dp)
+                            .padding(28.dp)
                     ) {
                         Column {
                             Text(
-                                text = "Welcome Back!",
-                                fontSize = 28.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = TextPrimary
+                                text = "Hello!",
+                                fontSize = 32.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = PrimaryColor
                             )
                             
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(10.dp))
                             
                             Text(
-                                text = "Stay informed, stay safe",
-                                fontSize = 16.sp,
-                                color = TextSecondary
+                                text = "Your safety dashboard",
+                                fontSize = 17.sp,
+                                color = TextSecondary,
+                                fontWeight = FontWeight.Medium
                             )
                         }
                     }
@@ -150,11 +153,11 @@ fun HomeScreen(
 
                 // Main Features - 3 in a row
                 Text(
-                    text = "Quick Actions",
-                    fontSize = 20.sp,
+                    text = "Explore Features",
+                    fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     color = TextPrimary,
-                    modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+                    modifier = Modifier.padding(top = 4.dp, bottom = 6.dp)
                 )
                 
                 // Row 1: Report, View Reports, Map
@@ -223,17 +226,28 @@ fun HomeScreen(
                     }
                 }
 
-                // Sign Out Button
-                Spacer(modifier = Modifier.height(8.dp))
-                AppButton(
-                    text = "Sign Out",
+                // Sign Out Button with new styling
+                Spacer(modifier = Modifier.height(12.dp))
+                OutlinedButton(
                     onClick = {
                         viewModel.signOut()
                         onSignOut()
                     },
-                    isSecondary = true,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(54.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = AccentColor
+                    ),
+                    border = BorderStroke(2.dp, AccentColor.copy(alpha = 0.6f))
+                ) {
+                    Text(
+                        text = "Sign Out",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
                 
                 Spacer(modifier = Modifier.height(16.dp))
             }

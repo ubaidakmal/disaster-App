@@ -1,6 +1,8 @@
 package com.bc230420212.app.ui.screens.reports
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -8,6 +10,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
@@ -16,7 +20,6 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,427 +38,6 @@ import com.bc230420212.app.ui.viewmodel.ReportsViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-
-/**
- * REPORT DETAILS SCREEN
- * 
- * This screen shows full details of a disaster report.
- * Displays:
- * - Full report details
- * - Map preview or address
- * - Media preview if exists
- * - Confirm and Dismiss buttons for users
- * 
- * @param reportId - ID of the report to display
- * @param onNavigateBack - Function to navigate back
- * @param viewModel - ViewModel for managing report state
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ReportDetailsScreen(
-    reportId: String,
-    onNavigateBack: () -> Unit,
-    viewModel: ReportsViewModel = viewModel()
-) {
-    val uiState by viewModel.uiState.collectAsState()
-    
-    // Load report when screen opens
-    LaunchedEffect(reportId) {
-        viewModel.loadReportById(reportId)
-    }
-    
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { 
-                    Text(
-                        text = "Report Details",
-                        fontWeight = FontWeight.Bold
-                    ) 
-                },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = PrimaryColor,
-                    titleContentColor = TextOnPrimary,
-                    navigationIconContentColor = TextOnPrimary
-                )
-            )
-        }
-    ) { paddingValues ->
-        when {
-            uiState.isLoading -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(color = PrimaryColor)
-                }
-            }
-            
-            uiState.errorMessage != null -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                        .padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = "Error",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = ErrorColor,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                    Text(
-                        text = uiState.errorMessage!!,
-                        fontSize = 14.sp,
-                        color = TextSecondary,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-                    AppButton(
-                        text = "Go Back",
-                        onClick = onNavigateBack
-                    )
-                }
-            }
-            
-            uiState.selectedReport == null -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "Report not found",
-                        fontSize = 16.sp,
-                        color = TextSecondary
-                    )
-                }
-            }
-            
-            else -> {
-                val report = uiState.selectedReport!!
-                
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                        .verticalScroll(rememberScrollState())
-                        .padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    // Disaster Type and Status
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = report.disasterType.displayName,
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = getDisasterTypeColor(report.disasterType)
-                        )
-                        
-                        // Status Badge
-                        Surface(
-                            color = getStatusColor(report.status),
-                            shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
-                        ) {
-                            Text(
-                                text = report.status.name,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = TextOnPrimary,
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                            )
-                        }
-                    }
-                    
-                    HorizontalDivider()
-                    
-                    // Description Section
-                    Text(
-                        text = "Description",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextPrimary,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                    Text(
-                        text = report.description,
-                        fontSize = 14.sp,
-                        color = TextPrimary,
-                        lineHeight = 20.sp
-                    )
-                    
-                    HorizontalDivider()
-                    
-                    // Location Section
-                    Text(
-                        text = "Location",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextPrimary,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                    
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = SurfaceColor
-                        )
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.LocationOn,
-                                    contentDescription = "Location",
-                                    tint = PrimaryColor,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Column(modifier = Modifier.weight(1f)) {
-                                    if (report.address.isNotEmpty()) {
-                                        Text(
-                                            text = report.address,
-                                            fontSize = 14.sp,
-                                            fontWeight = FontWeight.Medium,
-                                            color = TextPrimary
-                                        )
-                                    }
-                                    Text(
-                                        text = "Lat: ${String.format("%.6f", report.latitude)}, Lng: ${String.format("%.6f", report.longitude)}",
-                                        fontSize = 12.sp,
-                                        color = TextSecondary
-                                    )
-                                }
-                            }
-                            
-                            // Map Preview Placeholder
-                            Surface(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(200.dp),
-                                color = BackgroundColor,
-                                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
-                            ) {
-                                Box(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.LocationOn,
-                                            contentDescription = "Map",
-                                            tint = TextSecondary,
-                                            modifier = Modifier.size(48.dp)
-                                        )
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                        Text(
-                                            text = "Map Preview",
-                                            fontSize = 14.sp,
-                                            color = TextSecondary
-                                        )
-                                        Text(
-                                            text = "Google Maps integration will be added here",
-                                            fontSize = 12.sp,
-                                            color = TextSecondary
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    
-                    HorizontalDivider()
-                    
-                    // Media Section (if exists)
-                    if (report.mediaUrls.isNotEmpty()) {
-                        Text(
-                            text = "Media (${report.mediaUrls.size})",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = TextPrimary,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
-                        
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(
-                                containerColor = SurfaceColor
-                            )
-                        ) {
-                            LazyRow(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                items(report.mediaUrls) { imageUrl ->
-                                    ImageCard(imageUrl = imageUrl)
-                                }
-                            }
-                        }
-                        
-                        HorizontalDivider()
-                    }
-                    
-                    // Report Information
-                    Text(
-                        text = "Report Information",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextPrimary,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                    
-                    InfoRow("Time", formatTimestamp(report.timestamp))
-                    InfoRow("Confirmations", "${report.confirmations}")
-                    InfoRow("Dismissals", "${report.dismissals}")
-                    
-                    HorizontalDivider()
-                    
-                    // Show error message if exists
-                    if (uiState.errorMessage != null) {
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = 12.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = ErrorColor.copy(alpha = 0.1f)
-                            )
-                        ) {
-                            Text(
-                                text = uiState.errorMessage!!,
-                                fontSize = 14.sp,
-                                color = ErrorColor,
-                                modifier = Modifier.padding(16.dp)
-                            )
-                        }
-                        // Auto-clear error after 3 seconds
-                        LaunchedEffect(uiState.errorMessage) {
-                            kotlinx.coroutines.delay(3000)
-                            viewModel.clearError()
-                        }
-                    }
-                    
-                    // Verification Buttons (only for active reports)
-                    if (report.status == ReportStatus.ACTIVE) {
-                        Text(
-                            text = "Verification",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = TextPrimary,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
-                        
-                        // Show voting status if user has already voted
-                        if (uiState.hasUserConfirmed || uiState.hasUserDismissed) {
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = 12.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = if (uiState.hasUserConfirmed) 
-                                        SuccessColor.copy(alpha = 0.1f) 
-                                    else 
-                                        ErrorColor.copy(alpha = 0.1f)
-                                )
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(16.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Center
-                                ) {
-                                    Icon(
-                                        imageVector = if (uiState.hasUserConfirmed) 
-                                            Icons.Default.CheckCircle 
-                                        else 
-                                            Icons.Default.Close,
-                                        contentDescription = null,
-                                        tint = if (uiState.hasUserConfirmed) 
-                                            SuccessColor 
-                                        else 
-                                            ErrorColor,
-                                        modifier = Modifier.size(24.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(
-                                        text = if (uiState.hasUserConfirmed) 
-                                            "You have confirmed this report" 
-                                        else 
-                                            "You have dismissed this report",
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.Medium,
-                                        color = if (uiState.hasUserConfirmed) 
-                                            SuccessColor 
-                                        else 
-                                            ErrorColor
-                                    )
-                                }
-                            }
-                        }
-                        
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            AppButton(
-                                text = if (uiState.hasUserConfirmed) "Confirmed ✓" else "Confirm",
-                                onClick = {
-                                    viewModel.confirmReport(report.id)
-                                },
-                                modifier = Modifier.weight(1f),
-                                isSecondary = false,
-                                enabled = !uiState.hasUserConfirmed && !uiState.hasUserDismissed
-                            )
-                            
-                            AppButton(
-                                text = if (uiState.hasUserDismissed) "Dismissed ✗" else "Dismiss",
-                                onClick = {
-                                    viewModel.dismissReport(report.id)
-                                },
-                                modifier = Modifier.weight(1f),
-                                isSecondary = true,
-                                enabled = !uiState.hasUserConfirmed && !uiState.hasUserDismissed
-                            )
-                        }
-                        
-                        // Info text
-                        Text(
-                            text = "You can only vote once per report",
-                            fontSize = 12.sp,
-                            color = TextSecondary,
-                            modifier = Modifier.padding(top = 8.dp)
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
 
 /**
  * Helper function to display info row
@@ -528,10 +110,11 @@ private fun ImageCard(imageUrl: String) {
         modifier = Modifier
             .width(200.dp)
             .height(200.dp),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
             containerColor = BackgroundColor
-        )
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Image(
             painter = rememberAsyncImagePainter(
@@ -543,9 +126,533 @@ private fun ImageCard(imageUrl: String) {
             contentDescription = "Report image",
             modifier = Modifier
                 .fillMaxSize()
-                .clip(RoundedCornerShape(12.dp)),
+                .clip(RoundedCornerShape(18.dp)),
             contentScale = ContentScale.Crop
         )
+    }
+}
+
+/**
+ * REPORT DETAILS SCREEN
+ * 
+ * This screen shows full details of a disaster report.
+ * Displays:
+ * - Full report details
+ * - Map preview or address
+ * - Media preview if exists
+ * - Confirm and Dismiss buttons for users
+ * 
+ * @param reportId - ID of the report to display
+ * @param onNavigateBack - Function to navigate back
+ * @param viewModel - ViewModel for managing report state
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ReportDetailsScreen(
+    reportId: String,
+    onNavigateBack: () -> Unit,
+    viewModel: ReportsViewModel = viewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    
+    // Load report when screen opens
+    LaunchedEffect(reportId) {
+        viewModel.loadReportById(reportId)
+    }
+    
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { 
+                    Text(
+                        text = "Report Details",
+                        fontWeight = FontWeight.Bold
+                    ) 
+                },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = PrimaryColor,
+                    titleContentColor = TextOnPrimary,
+                    navigationIconContentColor = TextOnPrimary
+                )
+            )
+        }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(BackgroundColor)
+        ) {
+            when {
+                uiState.isLoading -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            color = PrimaryColor,
+                            strokeWidth = 4.dp,
+                            modifier = Modifier.size(40.dp)
+                        )
+                    }
+                }
+                
+                uiState.errorMessage != null -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues)
+                            .padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(22.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = ErrorColor.copy(alpha = 0.12f)
+                            ),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(28.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "Error",
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = ErrorColor,
+                                    modifier = Modifier.padding(bottom = 14.dp)
+                                )
+                                Text(
+                                    text = uiState.errorMessage!!,
+                                    fontSize = 15.sp,
+                                    color = TextSecondary,
+                                    modifier = Modifier.padding(bottom = 24.dp),
+                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                )
+                                Button(
+                                    onClick = onNavigateBack,
+                                    shape = RoundedCornerShape(14.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = ErrorColor
+                                    )
+                                ) {
+                                    Text(
+                                        text = "Go Back",
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            
+            uiState.selectedReport == null -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Report not found",
+                        fontSize = 16.sp,
+                        color = TextSecondary
+                    )
+                }
+            }
+            
+            else -> {
+                val report = uiState.selectedReport!!
+                
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .verticalScroll(rememberScrollState())
+                        .padding(22.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    // Disaster Type and Status Card
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(22.dp),
+                        colors = CardDefaults.cardColors(containerColor = SurfaceColor),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    brush = Brush.linearGradient(
+                                        colors = listOf(
+                                            getDisasterTypeColor(report.disasterType).copy(alpha = 0.12f),
+                                            BackgroundColor
+                                        )
+                                    )
+                                )
+                                .padding(24.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = report.disasterType.displayName,
+                                    fontSize = 26.sp,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = getDisasterTypeColor(report.disasterType)
+                                )
+                                
+                                // Status Badge
+                                Surface(
+                                    color = getStatusColor(report.status),
+                                    shape = RoundedCornerShape(12.dp)
+                                ) {
+                                    Text(
+                                        text = report.status.name,
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = TextOnPrimary,
+                                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Description Section
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(containerColor = SurfaceColor),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(22.dp)
+                        ) {
+                            Text(
+                                text = "Description",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary,
+                                modifier = Modifier.padding(bottom = 12.dp)
+                            )
+                            Text(
+                                text = report.description,
+                                fontSize = 15.sp,
+                                color = TextPrimary,
+                                lineHeight = 22.sp
+                            )
+                        }
+                    }
+                    
+                    // Location Section
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(containerColor = SurfaceColor),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(22.dp)
+                        ) {
+                            Text(
+                                text = "Location",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary,
+                                modifier = Modifier.padding(bottom = 12.dp)
+                            )
+                            
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(bottom = 16.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.LocationOn,
+                                    contentDescription = "Location",
+                                    tint = PrimaryColor,
+                                    modifier = Modifier.size(28.dp)
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    if (report.address.isNotEmpty()) {
+                                        Text(
+                                            text = report.address,
+                                            fontSize = 15.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = TextPrimary
+                                        )
+                                    }
+                                    Text(
+                                        text = "Lat: ${String.format("%.6f", report.latitude)}, Lng: ${String.format("%.6f", report.longitude)}",
+                                        fontSize = 13.sp,
+                                        color = TextSecondary,
+                                        modifier = Modifier.padding(top = 4.dp)
+                                    )
+                                }
+                            }
+                            
+                            // Map Preview Placeholder
+                            Surface(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(200.dp),
+                                color = BackgroundColor,
+                                shape = RoundedCornerShape(16.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.LocationOn,
+                                            contentDescription = "Map",
+                                            tint = TextSecondary,
+                                            modifier = Modifier.size(48.dp)
+                                        )
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Text(
+                                            text = "Map Preview",
+                                            fontSize = 15.sp,
+                                            color = TextSecondary,
+                                            fontWeight = FontWeight.Medium
+                                        )
+                                        Text(
+                                            text = "Google Maps integration will be added here",
+                                            fontSize = 12.sp,
+                                            color = TextSecondary
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Media Section (if exists)
+                    if (report.mediaUrls.isNotEmpty()) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(20.dp),
+                            colors = CardDefaults.cardColors(containerColor = SurfaceColor),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(22.dp)
+                            ) {
+                                Text(
+                                    text = "Media (${report.mediaUrls.size})",
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = TextPrimary,
+                                    modifier = Modifier.padding(bottom = 16.dp)
+                                )
+                                
+                                LazyRow(
+                                    horizontalArrangement = Arrangement.spacedBy(14.dp)
+                                ) {
+                                    items(report.mediaUrls) { imageUrl ->
+                                        ImageCard(imageUrl = imageUrl)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Report Information
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(containerColor = SurfaceColor),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(22.dp)
+                        ) {
+                            Text(
+                                text = "Report Information",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary,
+                                modifier = Modifier.padding(bottom = 16.dp)
+                            )
+                            
+                            InfoRow("Time", formatTimestamp(report.timestamp))
+                            Spacer(modifier = Modifier.height(8.dp))
+                            InfoRow("Confirmations", "${report.confirmations}")
+                            Spacer(modifier = Modifier.height(8.dp))
+                            InfoRow("Dismissals", "${report.dismissals}")
+                        }
+                    }
+                
+                    // Show error message if exists
+                    if (uiState.errorMessage != null) {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 12.dp),
+                            shape = RoundedCornerShape(18.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = ErrorColor.copy(alpha = 0.12f)
+                            ),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                        ) {
+                            Text(
+                                text = uiState.errorMessage!!,
+                                fontSize = 14.sp,
+                                color = ErrorColor,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier.padding(18.dp)
+                            )
+                        }
+                        // Auto-clear error after 3 seconds
+                        LaunchedEffect(uiState.errorMessage) {
+                            kotlinx.coroutines.delay(3000)
+                            viewModel.clearError()
+                        }
+                    }
+                    
+                    // Verification Buttons (only for active reports)
+                    if (report.status == ReportStatus.ACTIVE) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(20.dp),
+                            colors = CardDefaults.cardColors(containerColor = SurfaceColor),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(22.dp)
+                            ) {
+                                Text(
+                                    text = "Verification",
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = TextPrimary,
+                                    modifier = Modifier.padding(bottom = 16.dp)
+                                )
+                                
+                                // Show voting status if user has already voted
+                                if (uiState.hasUserConfirmed || uiState.hasUserDismissed) {
+                                    Surface(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(bottom = 16.dp),
+                                        shape = RoundedCornerShape(16.dp),
+                                        color = if (uiState.hasUserConfirmed) 
+                                            SuccessColor.copy(alpha = 0.15f) 
+                                        else 
+                                            ErrorColor.copy(alpha = 0.15f)
+                                    ) {
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(18.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.Center
+                                        ) {
+                                            Icon(
+                                                imageVector = if (uiState.hasUserConfirmed) 
+                                                    Icons.Default.CheckCircle 
+                                                else 
+                                                    Icons.Default.Close,
+                                                contentDescription = null,
+                                                tint = if (uiState.hasUserConfirmed) 
+                                                    SuccessColor 
+                                                else 
+                                                    ErrorColor,
+                                                modifier = Modifier.size(26.dp)
+                                            )
+                                            Spacer(modifier = Modifier.width(10.dp))
+                                            Text(
+                                                text = if (uiState.hasUserConfirmed) 
+                                                    "You have confirmed this report" 
+                                                else 
+                                                    "You have dismissed this report",
+                                                fontSize = 15.sp,
+                                                fontWeight = FontWeight.SemiBold,
+                                                color = if (uiState.hasUserConfirmed) 
+                                                    SuccessColor 
+                                                else 
+                                                    ErrorColor
+                                            )
+                                        }
+                                    }
+                                }
+                                
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(14.dp)
+                                ) {
+                                    Button(
+                                        onClick = {
+                                            viewModel.confirmReport(report.id)
+                                        },
+                                        modifier = Modifier.weight(1f),
+                                        enabled = !uiState.hasUserConfirmed && !uiState.hasUserDismissed,
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = SuccessColor
+                                        ),
+                                        shape = RoundedCornerShape(14.dp)
+                                    ) {
+                                        Text(
+                                            text = if (uiState.hasUserConfirmed) "Confirmed ✓" else "Confirm",
+                                            fontSize = 15.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                    
+                                    OutlinedButton(
+                                        onClick = {
+                                            viewModel.dismissReport(report.id)
+                                        },
+                                        modifier = Modifier.weight(1f),
+                                        enabled = !uiState.hasUserConfirmed && !uiState.hasUserDismissed,
+                                        shape = RoundedCornerShape(14.dp),
+                                        colors = ButtonDefaults.outlinedButtonColors(
+                                            contentColor = ErrorColor
+                                        ),
+                                        border = BorderStroke(2.dp, ErrorColor)
+                                    ) {
+                                        Text(
+                                            text = if (uiState.hasUserDismissed) "Dismissed ✗" else "Dismiss",
+                                            fontSize = 15.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                }
+                                
+                                // Info text
+                                Text(
+                                    text = "You can only vote once per report",
+                                    fontSize = 12.sp,
+                                    color = TextSecondary,
+                                    modifier = Modifier.padding(top = 12.dp),
+                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
     }
 }
 

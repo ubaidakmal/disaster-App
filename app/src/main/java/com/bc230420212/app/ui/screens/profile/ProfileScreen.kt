@@ -1,5 +1,6 @@
 package com.bc230420212.app.ui.screens.profile
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -113,68 +114,73 @@ fun ProfileScreen(
                             .background(
                                 brush = Brush.linearGradient(
                                     colors = listOf(
-                                        PrimaryColor.copy(alpha = 0.15f),
-                                        GradientEnd.copy(alpha = 0.1f)
+                                        PrimaryColor.copy(alpha = 0.18f),
+                                        SecondaryColor.copy(alpha = 0.12f),
+                                        GradientAccent.copy(alpha = 0.08f)
                                     )
                                 )
                             )
-                            .padding(20.dp)
+                            .padding(24.dp)
                     ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            // Profile Picture Placeholder with Gradient
+                            // Profile Picture Placeholder with Version 3 gradient
                             Box(
                                 modifier = Modifier
-                                    .size(72.dp)
+                                    .size(80.dp)
                                     .clip(CircleShape)
                                     .background(
-                                        brush = Brush.linearGradient(
-                                            colors = listOf(GradientStart, GradientEnd)
+                                        brush = Brush.radialGradient(
+                                            colors = listOf(
+                                                PrimaryColor,
+                                                SecondaryColor,
+                                                GradientAccent
+                                            )
                                         )
                                     ),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
                                     text = currentUser?.displayName?.take(1)?.uppercase() ?: "U",
-                                    fontSize = 28.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 32.sp,
+                                    fontWeight = FontWeight.ExtraBold,
                                     color = TextOnPrimary
                                 )
                             }
                             
-                            Spacer(modifier = Modifier.width(20.dp))
+                            Spacer(modifier = Modifier.width(24.dp))
                             
                             // User Info
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = currentUser?.displayName ?: "User",
-                                    fontSize = 22.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.ExtraBold,
                                     color = TextPrimary
                                 )
                                 Text(
                                     text = currentUser?.email ?: "",
-                                    fontSize = 14.sp,
+                                    fontSize = 15.sp,
                                     color = TextSecondary,
-                                    modifier = Modifier.padding(top = 6.dp)
+                                    modifier = Modifier.padding(top = 8.dp)
                                 )
-                                // Role Badge
+                                // Role Badge with Version 3 design
                                 Surface(
                                     color = if (uiState.userRole == com.bc230420212.app.data.model.UserRole.ADMIN) 
                                         AccentColor 
                                     else 
                                         SuccessColor,
-                                    shape = RoundedCornerShape(12.dp),
-                                    modifier = Modifier.padding(top = 10.dp)
+                                    shape = RoundedCornerShape(14.dp),
+                                    modifier = Modifier.padding(top = 12.dp)
                                 ) {
                                     Text(
                                         text = uiState.userRole.name,
-                                        fontSize = 12.sp,
+                                        fontSize = 13.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = TextOnPrimary,
-                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp)
                                     )
                                 }
                             }
@@ -182,15 +188,15 @@ fun ProfileScreen(
                     }
                 }
             
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
             
-            // Account Settings Section
+            // Account Settings Section with Version 3 design
             Text(
-                text = "Account",
-                fontSize = 18.sp,
+                text = "Account Settings",
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = TextPrimary,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp)
             )
             
             SettingsItem(
@@ -200,15 +206,15 @@ fun ProfileScreen(
                 onClick = { showChangePasswordDialog = true }
             )
             
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
             
-            // App Settings Section
+            // App Settings Section with Version 3 design
             Text(
-                text = "Settings",
-                fontSize = 18.sp,
+                text = "App Settings",
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = TextPrimary,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp)
             )
             
             SettingsItem(
@@ -242,15 +248,15 @@ fun ProfileScreen(
                 }
             )
             
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
             
-            // About Section
+            // About Section with Version 3 design
             Text(
-                text = "About",
-                fontSize = 18.sp,
+                text = "About & Support",
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = TextPrimary,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp)
             )
             
             SettingsItem(
@@ -269,20 +275,30 @@ fun ProfileScreen(
                 }
             )
             
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(28.dp))
             
-            // Sign Out Button
-            AppButton(
-                text = "Sign Out",
+            // Sign Out Button with Version 3 design
+            OutlinedButton(
                 onClick = {
                     viewModel.signOut()
                     onSignOut()
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                isSecondary = false
-            )
+                    .height(58.dp)
+                    .padding(horizontal = 18.dp),
+                shape = RoundedCornerShape(18.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = AccentColor
+                ),
+                border = BorderStroke(2.dp, AccentColor.copy(alpha = 0.7f))
+            ) {
+                Text(
+                    text = "Sign Out",
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
             
             Spacer(modifier = Modifier.height(16.dp))
             }

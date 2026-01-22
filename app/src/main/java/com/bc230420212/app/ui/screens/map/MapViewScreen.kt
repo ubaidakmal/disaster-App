@@ -1,9 +1,12 @@
 package com.bc230420212.app.ui.screens.map
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -107,39 +110,68 @@ fun MapViewScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(paddingValues),
+                        .padding(paddingValues)
+                        .background(BackgroundColor),
                     contentAlignment = androidx.compose.ui.Alignment.Center
                 ) {
-                    CircularProgressIndicator(color = PrimaryColor)
+                    CircularProgressIndicator(
+                        color = PrimaryColor,
+                        strokeWidth = 4.dp,
+                        modifier = Modifier.size(40.dp)
+                    )
                 }
             }
             
             uiState.errorMessage != null -> {
-                Column(
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
+                        .background(BackgroundColor)
                         .padding(24.dp),
-                    horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                    contentAlignment = androidx.compose.ui.Alignment.Center
                 ) {
-                    Text(
-                        text = "Error",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = ErrorColor,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                    Text(
-                        text = uiState.errorMessage!!,
-                        fontSize = 14.sp,
-                        color = TextSecondary,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-                    com.bc230420212.app.ui.components.AppButton(
-                        text = "Retry",
-                        onClick = { viewModel.loadReports() }
-                    )
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(22.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = ErrorColor.copy(alpha = 0.12f)
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(28.dp),
+                            horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "Error",
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = ErrorColor,
+                                modifier = Modifier.padding(bottom = 14.dp)
+                            )
+                            Text(
+                                text = uiState.errorMessage!!,
+                                fontSize = 15.sp,
+                                color = TextSecondary,
+                                modifier = Modifier.padding(bottom = 24.dp),
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                            )
+                            Button(
+                                onClick = { viewModel.loadReports() },
+                                shape = RoundedCornerShape(14.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = ErrorColor
+                                )
+                            ) {
+                                Text(
+                                    text = "Retry",
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
                 }
             }
             
@@ -147,24 +179,47 @@ fun MapViewScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(paddingValues),
+                        .padding(paddingValues)
+                        .background(BackgroundColor),
                     contentAlignment = androidx.compose.ui.Alignment.Center
                 ) {
-                    Column(
-                        horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
+                    Card(
+                        modifier = Modifier.fillMaxWidth().padding(24.dp),
+                        shape = RoundedCornerShape(22.dp),
+                        colors = CardDefaults.cardColors(containerColor = SurfaceColor),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                     ) {
-                        Text(
-                            text = "No Reports Available",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = TextPrimary,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
-                        Text(
-                            text = "There are no disaster reports to display on the map.",
-                            fontSize = 14.sp,
-                            color = TextSecondary
-                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    brush = Brush.linearGradient(
+                                        colors = listOf(
+                                            PrimaryColor.copy(alpha = 0.08f),
+                                            BackgroundColor
+                                        )
+                                    )
+                                )
+                                .padding(36.dp)
+                        ) {
+                            Column(
+                                horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "No Reports Available",
+                                    fontSize = 22.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = TextPrimary,
+                                    modifier = Modifier.padding(bottom = 12.dp)
+                                )
+                                Text(
+                                    text = "There are no disaster reports to display on the map.",
+                                    fontSize = 15.sp,
+                                    color = TextSecondary,
+                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -233,14 +288,16 @@ fun MapViewScreen(
                             }
                         }
                         
-                        // Debug overlay showing report count
+                        // Debug overlay showing report count with Version 3 design
                         Card(
                             modifier = Modifier
                                 .align(androidx.compose.ui.Alignment.TopEnd)
-                                .padding(16.dp),
+                                .padding(18.dp),
+                            shape = RoundedCornerShape(18.dp),
                             colors = CardDefaults.cardColors(
-                                containerColor = PrimaryColor.copy(alpha = 0.9f)
-                            )
+                                containerColor = PrimaryColor.copy(alpha = 0.95f)
+                            ),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                         ) {
                             Text(
                                 text = "Reports: ${validReports.size}",

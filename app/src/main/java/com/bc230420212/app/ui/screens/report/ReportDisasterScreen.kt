@@ -10,6 +10,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -170,115 +171,153 @@ fun ReportDisasterScreen(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-            // Disaster Type Dropdown
-            Text(
-                text = "Disaster Type *",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = TextPrimary,
-                modifier = Modifier.padding(bottom = 4.dp)
-            )
+            // Disaster Type Dropdown with Version 3 design
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 18.dp),
+                shape = RoundedCornerShape(22.dp),
+                colors = CardDefaults.cardColors(containerColor = SurfaceColor),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(20.dp)
+                ) {
+                    Text(
+                        text = "Disaster Type *",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = TextPrimary,
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
+                    
+                    AppDropdown(
+                        label = "Select Disaster Type",
+                        options = DisasterType.values().map { it.displayName },
+                        selectedOption = uiState.selectedDisasterType.displayName,
+                        onOptionSelected = { selectedName ->
+                            val selectedType = DisasterType.values().find { it.displayName == selectedName }
+                            selectedType?.let { viewModel.updateDisasterType(it) }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
             
-            AppDropdown(
-                label = "Select Disaster Type",
-                options = DisasterType.values().map { it.displayName },
-                selectedOption = uiState.selectedDisasterType.displayName,
-                onOptionSelected = { selectedName ->
-                    val selectedType = DisasterType.values().find { it.displayName == selectedName }
-                    selectedType?.let { viewModel.updateDisasterType(it) }
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
+            // Description Text Area with Version 3 design
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 18.dp),
+                shape = RoundedCornerShape(22.dp),
+                colors = CardDefaults.cardColors(containerColor = SurfaceColor),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(20.dp)
+                ) {
+                    Text(
+                        text = "Description *",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = TextPrimary,
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
+                    
+                    AppTextArea(
+                        value = uiState.description,
+                        onValueChange = { viewModel.updateDescription(it) },
+                        label = "Describe the disaster situation",
+                        isError = uiState.errorMessage != null && uiState.description.isBlank(),
+                        errorMessage = if (uiState.description.isBlank()) "Description is required" else ""
+                    )
+                }
+            }
             
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            // Description Text Area
-            Text(
-                text = "Description *",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = TextPrimary,
-                modifier = Modifier.padding(bottom = 4.dp)
-            )
-            
-            AppTextArea(
-                value = uiState.description,
-                onValueChange = { viewModel.updateDescription(it) },
-                label = "Describe the disaster situation",
-                isError = uiState.errorMessage != null && uiState.description.isBlank(),
-                errorMessage = if (uiState.description.isBlank()) "Description is required" else ""
-            )
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            // Location Section
-            Text(
-                text = "Location (GPS) *",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = TextPrimary,
-                modifier = Modifier.padding(bottom = 4.dp)
-            )
-            
-            // Location Card
+            // Location Section with Version 3 design
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(22.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = SurfaceColor
                 ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    modifier = Modifier.padding(22.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
+                    Text(
+                        text = "Location (GPS) *",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = TextPrimary,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    
                     if (uiState.latitude != 0.0 && uiState.longitude != 0.0) {
                         // Show captured location
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth()
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            color = SuccessColor.copy(alpha = 0.12f)
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.LocationOn,
-                                contentDescription = "Location",
-                                tint = PrimaryColor,
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = "Location Captured",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = TextPrimary
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.LocationOn,
+                                    contentDescription = "Location",
+                                    tint = SuccessColor,
+                                    modifier = Modifier.size(28.dp)
                                 )
-                                if (uiState.address.isNotEmpty()) {
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Column(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        text = uiState.address,
-                                        fontSize = 12.sp,
-                                        color = TextSecondary
+                                        text = "Location Captured",
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = SuccessColor
                                     )
-                                } else {
-                                    Text(
-                                        text = "Lat: ${String.format("%.6f", uiState.latitude)}, Lng: ${String.format("%.6f", uiState.longitude)}",
-                                        fontSize = 12.sp,
-                                        color = TextSecondary
-                                    )
+                                    if (uiState.address.isNotEmpty()) {
+                                        Text(
+                                            text = uiState.address,
+                                            fontSize = 13.sp,
+                                            color = TextSecondary,
+                                            modifier = Modifier.padding(top = 4.dp)
+                                        )
+                                    } else {
+                                        Text(
+                                            text = "Lat: ${String.format("%.6f", uiState.latitude)}, Lng: ${String.format("%.6f", uiState.longitude)}",
+                                            fontSize = 13.sp,
+                                            color = TextSecondary,
+                                            modifier = Modifier.padding(top = 4.dp)
+                                        )
+                                    }
                                 }
                             }
                         }
                     } else {
-                        Text(
-                            text = "No location captured",
-                            fontSize = 14.sp,
-                            color = TextSecondary
-                        )
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            color = TextSecondary.copy(alpha = 0.1f)
+                        ) {
+                            Text(
+                                text = "No location captured",
+                                fontSize = 15.sp,
+                                color = TextSecondary,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier.padding(16.dp)
+                            )
+                        }
                     }
                     
                     // Capture Location Button
-                    AppButton(
-                        text = if (uiState.latitude != 0.0 && uiState.longitude != 0.0) "Update Location" else "Capture Location",
+                    Button(
                         onClick = {
                             if (locationPermissionsState.allPermissionsGranted) {
                                 captureLocation(context, viewModel)
@@ -286,43 +325,51 @@ fun ReportDisasterScreen(
                                 locationPermissionsState.launchMultiplePermissionRequest()
                             }
                         },
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = PrimaryColor
+                        )
+                    ) {
+                        Text(
+                            text = if (uiState.latitude != 0.0 && uiState.longitude != 0.0) "Update Location" else "Capture Location",
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
             
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            // Photo/Video Upload Section (Optional)
-            Text(
-                text = "Media (Optional)",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = TextPrimary,
-                modifier = Modifier.padding(bottom = 4.dp)
-            )
-            
+            // Photo/Video Upload Section (Optional) with Version 3 design
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(22.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = SurfaceColor
                 ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    modifier = Modifier.padding(22.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
+                    Text(
+                        text = "Media (Optional)",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = TextPrimary,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    
                     // Selected Images Preview
                     if (uiState.selectedImagePaths.isNotEmpty()) {
                         LazyRow(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             items(uiState.selectedImagePaths.size) { index ->
                                 val imagePath = uiState.selectedImagePaths[index]
-                                Box(modifier = Modifier.size(100.dp)) {
+                                Box(modifier = Modifier.size(110.dp)) {
                                     Image(
                                         painter = rememberAsyncImagePainter(
                                             ImageRequest.Builder(LocalContext.current)
@@ -332,7 +379,7 @@ fun ReportDisasterScreen(
                                         contentDescription = "Selected image ${index + 1}",
                                         modifier = Modifier
                                             .fillMaxSize()
-                                            .clip(RoundedCornerShape(8.dp)),
+                                            .clip(RoundedCornerShape(14.dp)),
                                         contentScale = ContentScale.Crop
                                     )
                                     IconButton(
@@ -342,7 +389,7 @@ fun ReportDisasterScreen(
                                         Icon(
                                             imageVector = Icons.Default.Close,
                                             contentDescription = "Remove",
-                                            tint = com.bc230420212.app.ui.theme.ErrorColor
+                                            tint = ErrorColor
                                         )
                                     }
                                 }
@@ -351,18 +398,14 @@ fun ReportDisasterScreen(
                     }
                     
                     // Upload Button
-                    AppButton(
-                        text = if (uiState.selectedImagePaths.isEmpty()) "Select Images" else "Add More Images",
+                    OutlinedButton(
                         onClick = {
                             android.util.Log.d("ReportDisaster", "Select Images button clicked")
                             try {
-                                // Launch image picker
-                                // GetMultipleContents uses the system picker and doesn't require explicit permissions
                                 val result = imagePickerLauncher.launch("image/*")
                                 android.util.Log.d("ReportDisaster", "Image picker launcher invoked, result: $result")
                             } catch (e: Exception) {
                                 android.util.Log.e("ReportDisaster", "Error launching image picker: ${e.message}", e)
-                                // Fallback: Try using Intent directly
                                 try {
                                     val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
                                         type = "image/*"
@@ -377,8 +420,18 @@ fun ReportDisasterScreen(
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        isSecondary = uiState.selectedImagePaths.isNotEmpty()
-                    )
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = SecondaryColor
+                        ),
+                        border = BorderStroke(2.dp, SecondaryColor.copy(alpha = 0.6f))
+                    ) {
+                        Text(
+                            text = if (uiState.selectedImagePaths.isEmpty()) "Select Images" else "Add More Images",
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                     
                     if (uiState.isUploadingImages && uiState.uploadProgress != null) {
                         Row(

@@ -1,8 +1,10 @@
 package com.bc230420212.app.ui.screens.auth
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -61,6 +63,7 @@ fun RegisterScreen(
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
+                        SecondaryColor.copy(alpha = 0.06f),
                         BackgroundColor,
                         SurfaceColor
                     )
@@ -71,20 +74,24 @@ fun RegisterScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(24.dp),
+                .padding(28.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(16.dp))
             
-            // Logo/Icon Section with Gradient
+            // Logo/Icon Section with Circular Gradient
             Box(
                 modifier = Modifier
-                    .size(100.dp)
-                    .clip(RoundedCornerShape(24.dp))
+                    .size(120.dp)
+                    .clip(CircleShape)
                     .background(
-                        brush = Brush.linearGradient(
-                            colors = listOf(GradientStart, GradientEnd)
+                        brush = Brush.radialGradient(
+                            colors = listOf(
+                                SecondaryColor,
+                                GradientAccent,
+                                PrimaryColor
+                            )
                         )
                     ),
                 contentAlignment = Alignment.Center
@@ -92,40 +99,40 @@ fun RegisterScreen(
                 Icon(
                     imageVector = Icons.Default.Person,
                     contentDescription = "Register Icon",
-                    modifier = Modifier.size(48.dp),
+                    modifier = Modifier.size(56.dp),
                     tint = TextOnPrimary
                 )
             }
             
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(40.dp))
             
             // App Title
             Text(
-                text = "Create Account",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = TextPrimary,
+                text = "Get Started",
+                fontSize = 36.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = SecondaryColor,
                 textAlign = TextAlign.Center
             )
             
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
             
             Text(
-                text = "Join our safety community",
-                fontSize = 16.sp,
+                text = "Create your account to stay safe",
+                fontSize = 15.sp,
                 color = TextSecondary,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(bottom = 40.dp)
+                modifier = Modifier.padding(bottom = 52.dp)
             )
 
             // Name Field
-            Card(
+            Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = SurfaceColor),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    .padding(bottom = 18.dp),
+                shape = RoundedCornerShape(18.dp),
+                color = SurfaceColor,
+                shadowElevation = 4.dp
             ) {
                 AppTextField(
                     value = name,
@@ -137,18 +144,18 @@ fun RegisterScreen(
                     label = "Full Name",
                     isError = nameError,
                     errorMessage = if (nameError) "Name is required" else "",
-                    modifier = Modifier.padding(horizontal = 4.dp)
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 )
             }
 
             // Email Field
-            Card(
+            Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = SurfaceColor),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    .padding(bottom = 18.dp),
+                shape = RoundedCornerShape(18.dp),
+                color = SurfaceColor,
+                shadowElevation = 4.dp
             ) {
                 AppTextField(
                     value = email,
@@ -157,22 +164,22 @@ fun RegisterScreen(
                         emailError = false
                         viewModel.clearError()
                     },
-                    label = "Email Address",
+                    label = "Email",
                     keyboardType = androidx.compose.ui.text.input.KeyboardType.Email,
                     isError = emailError,
                     errorMessage = if (emailError) uiState.errorMessage ?: "" else "",
-                    modifier = Modifier.padding(horizontal = 4.dp)
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 )
             }
 
             // Password Field
-            Card(
+            Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = SurfaceColor),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    .padding(bottom = 18.dp),
+                shape = RoundedCornerShape(18.dp),
+                color = SurfaceColor,
+                shadowElevation = 4.dp
             ) {
                 AppTextField(
                     value = password,
@@ -186,18 +193,18 @@ fun RegisterScreen(
                     isPassword = true,
                     isError = passwordError,
                     errorMessage = if (passwordError) uiState.errorMessage ?: "" else "",
-                    modifier = Modifier.padding(horizontal = 4.dp)
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 )
             }
 
             // Confirm Password Field
-            Card(
+            Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 24.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = SurfaceColor),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    .padding(bottom = 32.dp),
+                shape = RoundedCornerShape(18.dp),
+                color = SurfaceColor,
+                shadowElevation = 4.dp
             ) {
                 AppTextField(
                     value = confirmPassword,
@@ -210,34 +217,33 @@ fun RegisterScreen(
                     isPassword = true,
                     isError = confirmPasswordError,
                     errorMessage = if (confirmPasswordError) "Passwords do not match" else "",
-                    modifier = Modifier.padding(horizontal = 4.dp)
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 )
             }
 
             // Error Message
             if (uiState.errorMessage != null && !emailError && !passwordError) {
-                Card(
+                Surface(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = ErrorColor.copy(alpha = 0.1f)
-                    )
+                        .padding(bottom = 20.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    color = ErrorColor.copy(alpha = 0.12f),
+                    border = BorderStroke(1.dp, ErrorColor.copy(alpha = 0.3f))
                 ) {
                     Text(
                         text = uiState.errorMessage!!,
                         color = ErrorColor,
-                        fontSize = 14.sp,
-                        modifier = Modifier.padding(16.dp),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.padding(18.dp),
                         textAlign = TextAlign.Center
                     )
                 }
             }
 
-            // Register Button
-            AppButton(
-                text = "Create Account",
+            // Register Button with gradient
+            Button(
                 onClick = {
                     // Validation
                     nameError = name.isBlank()
@@ -251,8 +257,23 @@ fun RegisterScreen(
                 },
                 enabled = !uiState.isLoading && name.isNotBlank() && email.isNotBlank() && 
                          password.isNotBlank() && confirmPassword.isNotBlank(),
-                modifier = Modifier.padding(bottom = 24.dp)
-            )
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(58.dp)
+                    .padding(bottom = 28.dp),
+                shape = RoundedCornerShape(18.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = SecondaryColor
+                ),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 6.dp)
+            ) {
+                Text(
+                    text = "Register Now",
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TextOnPrimary
+                )
+            }
 
         // Google Sign In Button
 //        AppButton(
@@ -263,37 +284,42 @@ fun RegisterScreen(
 //            modifier = Modifier.padding(bottom = 24.dp)
 //        )
 
-            // Login Link
+            // Login Link with new styling
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Already have an account? ",
-                    fontSize = 14.sp,
+                    text = "Already registered? ",
+                    fontSize = 15.sp,
                     color = TextSecondary
                 )
-                TextButton(onClick = onNavigateToLogin) {
+                TextButton(
+                    onClick = onNavigateToLogin,
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = SecondaryColor
+                    )
+                ) {
                     Text(
                         text = "Sign In",
-                        color = PrimaryColor,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
+                        fontSize = 15.sp
                     )
                 }
             }
 
             // Loading Indicator
             if (uiState.isLoading) {
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(28.dp))
                 CircularProgressIndicator(
-                    color = PrimaryColor,
-                    strokeWidth = 3.dp
+                    color = SecondaryColor,
+                    strokeWidth = 3.5.dp,
+                    modifier = Modifier.size(32.dp)
                 )
             }
             
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
