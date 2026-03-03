@@ -13,7 +13,7 @@ This app uses Firebase Cloud Messaging (FCM) to send push notifications to all u
 
 ## Android App Setup (Already Done)
 
-✅ FCM Service created: `app/src/main/java/com/bc230420212/app/service/FCMService.kt`
+✅ FCM Service created: `app/src/main/java/com/bc220424990/app/service/FCMService.kt`
 ✅ Notification channel configured
 ✅ Auto-subscribe to "allUsers" topic in MainActivity
 ✅ Manifest configured with FCM service
@@ -136,7 +136,7 @@ firebase deploy --only functions
 
 ## Files
 
-- **Android Service**: `app/src/main/java/com/bc230420212/app/service/FCMService.kt`
+- **Android Service**: `app/src/main/java/com/bc220424990/app/service/FCMService.kt`
 - **Cloud Function**: `functions/index.js`
 - **Package Config**: `functions/package.json`
 

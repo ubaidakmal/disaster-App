@@ -29,7 +29,7 @@ The system also tracks user roles:
 
 ### 1. Login Screen (`LoginScreen.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/app/ui/screens/auth/LoginScreen.kt`
+**Location:** `app/src/main/java/com/bc220424990/app/ui/screens/auth/LoginScreen.kt`
 
 **Screen Title:** Login Screen
 
@@ -76,7 +76,7 @@ If valid → Navigate to Home → If invalid → Show error
 
 ### 2. Register Screen (`RegisterScreen.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/app/ui/screens/auth/RegisterScreen.kt`
+**Location:** `app/src/main/java/com/bc220424990/app/ui/screens/auth/RegisterScreen.kt`
 
 **Screen Title:** Registration Screen
 
@@ -131,7 +131,7 @@ Create Firestore user document → Navigate to Home
 
 ### 3. Home Screen (Dashboard) (`HomeScreen.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/app/ui/screens/home/HomeScreen.kt`
+**Location:** `app/src/main/java/com/bc220424990/app/ui/screens/home/HomeScreen.kt`
 
 **Screen Title:** Home Screen / Dashboard
 
@@ -183,7 +183,7 @@ Navigate to corresponding screen → User can navigate back
 
 ### 1. AppButton Component (`AppButton.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/app/ui/components/AppButton.kt`
+**Location:** `app/src/main/java/com/bc220424990/app/ui/components/AppButton.kt`
 
 **What It Does:**
 A reusable button component that can be used throughout the app. This ensures all buttons look consistent.
@@ -220,7 +220,7 @@ AppButton(
 
 ### 2. AppDropdown Component (`AppDropdown.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/app/ui/components/AppDropdown.kt`
+**Location:** `app/src/main/java/com/bc220424990/app/ui/components/AppDropdown.kt`
 
 **What It Does:**
 A reusable dropdown menu component for selecting options. Used for disaster type selection in the Report Disaster screen.
@@ -250,7 +250,7 @@ AppDropdown(
 
 ### 3. AppTextArea Component (`AppTextArea.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/app/ui/components/AppTextArea.kt`
+**Location:** `app/src/main/java/com/bc220424990/app/ui/components/AppTextArea.kt`
 
 **What It Does:**
 A reusable multi-line text input component for longer text like descriptions.
@@ -281,7 +281,7 @@ AppTextArea(
 
 ### 4. ReportItem Component (`ReportItem.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/app/ui/components/ReportItem.kt`
+**Location:** `app/src/main/java/com/bc220424990/app/ui/components/ReportItem.kt`
 
 **What It Does:**
 A reusable card component that displays a single disaster report in a list. Shows all key information in a compact format.
@@ -311,7 +311,7 @@ ReportItem(
 
 ### 5. SettingsItem Component (`SettingsItem.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/app/ui/components/SettingsItem.kt`
+**Location:** `app/src/main/java/com/bc220424990/app/ui/components/SettingsItem.kt`
 
 **What It Does:**
 A reusable component for displaying settings options in the Profile screen. Shows an icon, title, optional subtitle, and trailing content.
@@ -354,7 +354,7 @@ SettingsItem(
 
 ### 6. DashboardCard Component (`DashboardCard.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/app/ui/components/DashboardCard.kt`
+**Location:** `app/src/main/java/com/bc220424990/app/ui/components/DashboardCard.kt`
 
 **What It Does:**
 A reusable card component used in the Home Screen Dashboard for navigation. Each card represents a feature/function in the app.
@@ -384,7 +384,7 @@ DashboardCard(
 
 ### 7. AppTextField Component (`AppTextField.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/app/ui/components/AppTextField.kt`
+**Location:** `app/src/main/java/com/bc220424990/app/ui/components/AppTextField.kt`
 
 **What It Does:**
 A reusable text input field component for forms throughout the app.
@@ -416,7 +416,7 @@ AppTextField(
 
 ### 8. AppColors (`AppColors.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/app/ui/theme/AppColors.kt`
+**Location:** `app/src/main/java/com/bc220424990/app/ui/theme/AppColors.kt`
 
 **What It Does:**
 A file that contains all color definitions used in the app. This is like a color palette.
@@ -446,7 +446,7 @@ Button(colors = ButtonDefaults.buttonColors(containerColor = PrimaryColor))
 
 ### DisasterType Enum (`DisasterType.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/app/data/model/DisasterType.kt`
+**Location:** `app/src/main/java/com/bc220424990/app/data/model/DisasterType.kt`
 
 **What It Does:**
 Defines all the types of disasters that can be reported in the app.
@@ -466,7 +466,7 @@ Each type has a `displayName` that is shown in the dropdown.
 
 ### DisasterReport Model (`DisasterReport.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/app/data/model/DisasterReport.kt`
+**Location:** `app/src/main/java/com/bc220424990/app/data/model/DisasterReport.kt`
 
 **What It Does:**
 Defines the structure of a disaster report in the app.
@@ -494,7 +494,7 @@ Defines the structure of a disaster report in the app.
 
 ### SOSAlert Model (`SOSAlert.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/app/data/model/SOSAlert.kt`
+**Location:** `app/src/main/java/com/bc220424990/app/data/model/SOSAlert.kt`
 
 **What It Does:**
 Defines the structure of an SOS emergency alert in the app.
@@ -520,7 +520,7 @@ Defines the structure of an SOS emergency alert in the app.
 
 ### User Model (`User.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/app/data/model/User.kt`
+**Location:** `app/src/main/java/com/bc220424990/app/data/model/User.kt`
 
 **What It Does:**
 Defines the structure of user data in the app.
@@ -542,7 +542,7 @@ Defines the structure of user data in the app.
 
 ### ReportsViewModel (`ReportsViewModel.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/app/ui/viewmodel/ReportsViewModel.kt`
+**Location:** `app/src/main/java/com/bc220424990/app/ui/viewmodel/ReportsViewModel.kt`
 
 **What It Does:**
 Manages the state and logic for the View Reports and Report Details screens.
@@ -571,7 +571,7 @@ Manages the state and logic for the View Reports and Report Details screens.
 
 ### ReportViewModel (`ReportViewModel.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/app/ui/viewmodel/ReportViewModel.kt`
+**Location:** `app/src/main/java/com/bc220424990/app/ui/viewmodel/ReportViewModel.kt`
 
 **What It Does:**
 Manages the state and logic for the Report Disaster screen.
@@ -606,7 +606,7 @@ Manages the state and logic for the Report Disaster screen.
 
 ### AuthViewModel (`AuthViewModel.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/app/ui/viewmodel/AuthViewModel.kt`
+**Location:** `app/src/main/java/com/bc220424990/app/ui/viewmodel/AuthViewModel.kt`
 
 **What It Does:**
 Manages the authentication state and handles all authentication operations.
@@ -636,7 +636,7 @@ Manages the authentication state and handles all authentication operations.
 
 ### AuthRepository (`AuthRepository.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/app/data/repository/AuthRepository.kt`
+**Location:** `app/src/main/java/com/bc220424990/app/data/repository/AuthRepository.kt`
 
 **What It Does:**
 Handles all communication with Firebase Authentication and Firestore database.
@@ -657,7 +657,7 @@ Handles all communication with Firebase Authentication and Firestore database.
 
 ### ReportRepository (`ReportRepository.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/app/data/repository/ReportRepository.kt`
+**Location:** `app/src/main/java/com/bc220424990/app/data/repository/ReportRepository.kt`
 
 **What It Does:**
 Handles all Firestore operations related to disaster reports, including one-time voting system.
@@ -755,7 +755,7 @@ All users receive notification
 ### Implementation Files
 
 1. **FCMService.kt**: Handles receiving and displaying notifications
-   - Location: `app/src/main/java/com/bc230420212/app/service/FCMService.kt`
+   - Location: `app/src/main/java/com/bc220424990/app/service/FCMService.kt`
    - Receives FCM messages
    - Creates notification channel
    - Displays notifications to users
@@ -790,7 +790,7 @@ See `FCM_SETUP.md` for detailed setup instructions.
 
 ### NavGraph (`NavGraph.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/app/ui/navigation/NavGraph.kt`
+**Location:** `app/src/main/java/com/bc220424990/app/ui/navigation/NavGraph.kt`
 
 **What It Does:**
 Manages navigation between different screens in the app.
@@ -821,7 +821,7 @@ navController.navigate(Screen.Home.route) {
 
 ### MainActivity (`MainActivity.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/app/MainActivity.kt`
+**Location:** `app/src/main/java/com/bc220424990/app/MainActivity.kt`
 
 **What It Does:**
 The main entry point of the app. It sets up the UI and handles Google Sign-In.
@@ -844,7 +844,7 @@ If logged in → Show Home → If not → Show Login
 ## Project Structure
 
 ```
-app/src/main/java/com/bc230420212/app/
+app/src/main/java/com/bc220424990/app/
 ├── MainActivity.kt                    # App entry point
 ├── data/
 │   ├── model/
@@ -899,7 +899,7 @@ See `FIREBASE_SETUP.md` for detailed Firebase configuration instructions.
 
 ### 4. Report Disaster Screen (`ReportDisasterScreen.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/app/ui/screens/report/ReportDisasterScreen.kt`
+**Location:** `app/src/main/java/com/bc220424990/app/ui/screens/report/ReportDisasterScreen.kt`
 
 **Screen Title:** Report Disaster
 
@@ -970,7 +970,7 @@ Validate → Save to Firestore → Show success → Navigate back
 
 ### 5. View Reports Screen (`ViewReportsScreen.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/app/ui/screens/reports/ViewReportsScreen.kt`
+**Location:** `app/src/main/java/com/bc220424990/app/ui/screens/reports/ViewReportsScreen.kt`
 
 **Screen Title:** View Reports
 
@@ -1026,7 +1026,7 @@ Display in list → User taps item → Navigate to Details
 
 ### 6. Report Details Screen (`ReportDetailsScreen.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/app/ui/screens/reports/ReportDetailsScreen.kt`
+**Location:** `app/src/main/java/com/bc220424990/app/ui/screens/reports/ReportDetailsScreen.kt`
 
 **Screen Title:** Report Details
 
@@ -1084,7 +1084,7 @@ Update Firestore → Refresh display
 
 ### 7. Map View Screen (`MapViewScreen.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/app/ui/screens/map/MapViewScreen.kt`
+**Location:** `app/src/main/java/com/bc220424990/app/ui/screens/map/MapViewScreen.kt`
 
 **Screen Title:** Map View
 
@@ -1147,7 +1147,7 @@ Show info window with details
 
 **Status:** ✅ Fully Implemented with Google Maps Integration
 
-**Location:** `app/src/main/java/com/bc230420212/app/ui/screens/map/MapViewScreen.kt`
+**Location:** `app/src/main/java/com/bc220424990/app/ui/screens/map/MapViewScreen.kt`
 
 **What It Does:**
 Placeholder screen for displaying disaster reports on an interactive map. Will show:
@@ -1163,7 +1163,7 @@ Placeholder screen for displaying disaster reports on an interactive map. Will s
 
 ### 8. SOS Emergency Screen (`SOSScreen.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/app/ui/screens/sos/SOSScreen.kt`
+**Location:** `app/src/main/java/com/bc220424990/app/ui/screens/sos/SOSScreen.kt`
 
 **Screen Title:** SOS Emergency
 
@@ -1233,7 +1233,7 @@ SOS alerts are saved to the `sosAlerts` collection with:
 
 ### 9. Profile & Settings Screen (`ProfileScreen.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/app/ui/screens/profile/ProfileScreen.kt`
+**Location:** `app/src/main/java/com/bc220424990/app/ui/screens/profile/ProfileScreen.kt`
 
 **Screen Title:** Profile & Settings
 
@@ -1299,7 +1299,7 @@ Open dialog/perform action → Update Firebase if needed
 
 ### 10. Admin Panel Screen (`AdminPanelScreen.kt`)
 
-**Location:** `app/src/main/java/com/bc230420212/app/ui/screens/admin/AdminPanelScreen.kt`
+**Location:** `app/src/main/java/com/bc220424990/app/ui/screens/admin/AdminPanelScreen.kt`
 
 **Screen Title:** Admin Panel
 

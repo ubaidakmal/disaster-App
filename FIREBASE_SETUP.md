@@ -21,7 +21,7 @@ In Firebase Console → Authentication → Sign-in method:
   - Get the Web Client ID from the Google sign-in configuration
 
 ### 3. Update Google Sign-In Client ID
-Open: `app/src/main/java/com/bc230420212/androidbasedcrowdsourceddisasteralertsafetyapp/util/GoogleSignInHelper.kt`
+Open: `app/src/main/java/com/bc220424990/androidbasedcrowdsourceddisasteralertsafetyapp/util/GoogleSignInHelper.kt`
 
 Replace `"YOUR_WEB_CLIENT_ID"` with your actual Web Client ID from Firebase Console.
 
