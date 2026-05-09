@@ -53,7 +53,7 @@ Failed to upload image: Cloudinary upload failed: Server returned unexpected sta
 7. Click **Save**
 
 ### Step 2: Update Code
-1. Open `app/src/main/java/com/bc230420212/app/util/CloudinaryHelper.kt`
+1. Open `app/src/main/java/com/bc210421297/app/util/CloudinaryHelper.kt`
 2. Update the upload preset name:
    ```kotlin
    const val UPLOAD_PRESET = "disaster_app"  // Match the name in Cloudinary

@@ -222,8 +222,8 @@ firebase deploy --only functions
 ## Code Locations
 
 ### Android App:
-- **FCM Service**: `app/src/main/java/com/bc230420212/app/service/FCMService.kt`
-- **Main Activity**: `app/src/main/java/com/bc230420212/app/MainActivity.kt`
+- **FCM Service**: `app/src/main/java/com/bc210421297/app/service/FCMService.kt`
+- **Main Activity**: `app/src/main/java/com/bc210421297/app/MainActivity.kt`
 - **Manifest**: `app/src/main/AndroidManifest.xml`
 
 ### Server-Side:

@@ -27,7 +27,7 @@ This guide will help you set up Cloudinary for image uploads in the Disaster Ale
 
 ## Step 4: Configure the App
 
-1. Open `app/src/main/java/com/bc230420212/app/util/CloudinaryHelper.kt`
+1. Open `app/src/main/java/com/bc210421297/app/util/CloudinaryHelper.kt`
 2. Replace the placeholder values:
 
 ```kotlin
